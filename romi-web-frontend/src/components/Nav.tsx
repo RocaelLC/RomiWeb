@@ -36,10 +36,15 @@ export default function Nav() {
     }
     (async () => {
       try {
-        const data = await apiFetchAuth(endpoints.notifications.list(true), {
-          method: "GET",
-        });
-        setUnread(Array.isArray(data) ? data.length : 0);
+        const data = await apiFetchAuth(
+  endpoints.notifications.list(), 
+  { method: "GET" },
+);
+
+
+        setUnread(
+          Array.isArray(data) ? data.filter((n: any) => !n.readAt).length : 0
+        );
       } catch {
         setUnread(0);
       }
@@ -72,16 +77,14 @@ export default function Nav() {
       <nav className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-4">
           <Link href="/" className="font-bold text-xl tracking-tight text-primary">
-            <div className="flex items-center">
+            <div className="flex items-center w-32">
               <Image
-                src="/images/ROMO.PNG"
-                alt="ROMI — Tu asistente virtual"
-                width={140}
-                height={46}
-                priority
-                className="h-9 w-auto"
+                src="/images/ROMO.png"
+                alt="ROMI"
+                width={130}
+                height={40}
+                className="object-contain"
               />
-              <span className="sr-only">ROMI</span>
             </div>
           </Link>
 
@@ -91,11 +94,10 @@ export default function Nav() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`px-3 py-1.5 rounded-full text-l transition ${
-                  isActive(l.href)
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
+                className={`px-3 py-1.5 rounded-full text-l transition ${isActive(l.href)
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
               >
                 {l.label}
               </Link>
@@ -179,11 +181,10 @@ export default function Nav() {
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className={`px-3 py-2 rounded-md text-sm transition ${
-                    isActive(l.href)
-                      ? "bg-primary/15 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
+                  className={`px-3 py-2 rounded-md text-sm transition ${isActive(l.href)
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
                 >
                   {l.label}
                 </Link>

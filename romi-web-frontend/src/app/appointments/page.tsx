@@ -44,7 +44,7 @@ export default function PatientAppointmentsPage() {
   }, [fetchData]);
 
   const deleteAppointment = async (id: string) => {
-    const ok = confirm("Â¿Seguro que deseas eliminar esta cita?");
+    const ok = confirm("¿Seguro que deseas eliminar esta cita?");
     if (!ok) return;
 
     try {
@@ -133,11 +133,11 @@ export default function PatientAppointmentsPage() {
 
   return (
     <main className="max-w-5xl mx-auto p-6 space-y-6">
-     <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Mis citas</h1>
           <p className="text-sm text-muted-foreground">
-            Revisa tus prÃ³ximas consultas, historial y gestiona tus citas.
+            Revisa tus proximas consultas, historial y gestiona tus citas.
           </p>
         </div>
         <button
@@ -149,13 +149,13 @@ export default function PatientAppointmentsPage() {
         </button>
       </header>
 
-     <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border bg-card p-4 flex items-center gap-3">
           <div className="p-2 rounded-full bg-blue-50">
             <CalendarDays className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">PrÃ³ximas</div>
+            <div className="text-xs text-muted-foreground">Proximas</div>
             <div className="text-2xl font-semibold">{stats.proximas}</div>
           </div>
         </div>
@@ -183,8 +183,7 @@ export default function PatientAppointmentsPage() {
         <section className="rounded-2xl border bg-card p-4 flex flex-col sm:flex-row justify-between gap-3">
           <div>
             <h2 className="text-sm font-medium text-muted-foreground mb-1">
-              PrÃ³xima cita
-            </h2>
+              Proxima cita            </h2>
             <p className="text-base font-semibold">
               {nextAppointment.doctor?.name ||
                 nextAppointment.doctor?.email ||
@@ -208,14 +207,14 @@ export default function PatientAppointmentsPage() {
             </button>
             {(nextAppointment.status === "PENDING" ||
               nextAppointment.status === "CANCELLED") && (
-              <button
-                onClick={() => deleteAppointment(nextAppointment.id)}
-                className="inline-flex items-center justify-center px-3 py-1.5 rounded border text-xs text-red-600 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Eliminar
-              </button>
-            )}
+                <button
+                  onClick={() => deleteAppointment(nextAppointment.id)}
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded border text-xs text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Eliminar
+                </button>
+              )}
           </div>
         </section>
       )}
@@ -223,7 +222,7 @@ export default function PatientAppointmentsPage() {
       {!!upcoming.length && (
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">PrÃ³ximas citas</h2>
+            <h2 className="text-lg font-medium">Proximas citas</h2>
             <span className="text-xs text-muted-foreground">
               {upcoming.length} en los siguientes dÃ­as
             </span>
@@ -263,13 +262,13 @@ export default function PatientAppointmentsPage() {
                   </button>
                   {(ap.status === "PENDING" ||
                     ap.status === "CANCELLED") && (
-                    <button
-                      onClick={() => deleteAppointment(ap.id)}
-                      className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                      <button
+                        onClick={() => deleteAppointment(ap.id)}
+                        className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                 </div>
               </div>
             ))}
@@ -277,12 +276,12 @@ export default function PatientAppointmentsPage() {
         </section>
       )}
 
-     {!!past.length && (
+      {!!past.length && (
         <section className="space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Historial reciente</h2>
             <span className="text-xs text-muted-foreground">
-              Mostrando Ãºltimas {Math.min(past.length, 5)} citas
+              Mostrando Ultimas {Math.min(past.length, 5)} citas
             </span>
           </div>
           <div className="grid gap-3">
@@ -301,11 +300,10 @@ export default function PatientAppointmentsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full ${
-                      ap.status === "ATTENDED"
+                    className={`text-[11px] px-2 py-0.5 rounded-full ${ap.status === "ATTENDED"
                         ? "bg-emerald-50 text-emerald-700"
                         : "bg-slate-50 text-slate-700"
-                    }`}
+                      }`}
                   >
                     {ap.status}
                   </span>
@@ -322,7 +320,7 @@ export default function PatientAppointmentsPage() {
         </section>
       )}
 
-     {!!items.length && (
+      {!!items.length && (
         <section className="space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Todas mis citas</h2>
@@ -368,14 +366,14 @@ export default function PatientAppointmentsPage() {
                       </button>
                       {(ap.status === "PENDING" ||
                         ap.status === "CANCELLED") && (
-                        <button
-                          onClick={() => deleteAppointment(ap.id)}
-                          className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
-                          title="Eliminar cita"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                          <button
+                            onClick={() => deleteAppointment(ap.id)}
+                            className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
+                            title="Eliminar cita"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                     </td>
                   </tr>
                 ))}
@@ -389,8 +387,8 @@ export default function PatientAppointmentsPage() {
         <section className="p-6 border rounded-2xl bg-card text-sm space-y-2">
           <p>No tienes citas por ahora.</p>
           <p className="text-muted-foreground">
-            Puedes agendar tu primera cita desde el botÃ³n{" "}
-            <span className="font-medium">â€œAgendar nueva citaâ€</span> arriba.
+            Puedes agendar tu primera cita desde el botón{" "}
+            <span className="font-medium">“Agendar nueva cita”</span> arriba.
           </p>
         </section>
       )}

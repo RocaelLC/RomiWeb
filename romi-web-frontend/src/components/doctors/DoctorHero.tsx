@@ -12,7 +12,7 @@ export default function DoctorsHero() {
           </h1>
           <p className="mt-3 text-base md:text-lg opacity-90">
             Conecta con especialistas de primer nivel desde la comodidad de tu hogar.
-            Consultas seguras, diagnÃ³sticos precisos y seguimiento personalizado.
+            Consultas seguras, diagnosticos precisos y seguimiento personalizado.
           </p>
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
@@ -37,7 +37,7 @@ export default function DoctorsHero() {
           Encuentra tu Especialista
         </h2>
         <p className="mt-5 text-zinc-500 text-center">
-          Selecciona la especialidad o busca por nombre/ciudad y elige con quiÃ©n consultar.
+          Selecciona la especialidad o busca por nombre/ciudad y elige con quien consultar.
         </p>
       </div>
     </>

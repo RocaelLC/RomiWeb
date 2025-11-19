@@ -16,7 +16,6 @@ function normalize(s?: string) {
     .replace(/\s+/g, " ");
 }
 function singular(s: string) {
-  // Simplifica plurales básicos al singular
   return s.replace(/(oes|es|s)$/, (m) => (m === "s" ? "" : "o"));
 }
 function nkey(s?: string) {

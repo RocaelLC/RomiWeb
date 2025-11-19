@@ -41,7 +41,7 @@ export default function DashboardPage() {
         const m = await apiFetch("/auth/me", { method: "GET" });
         setMe(m);
         setDoctorId(m?.sub || "");
-      } catch {}
+      } catch { }
     })();
   }, []);
 
@@ -58,13 +58,17 @@ export default function DashboardPage() {
       setCompletedCount((c.items ?? []).length);
       const historyData = await apiFetchAuth<HistoryItem[]>(endpoints.appointments.historyMe, { method: "GET" });
       setHistory(historyData ?? []);
-    } catch {}
+    } catch { }
   }, []);
 
   const fetchNotifications = useCallback(async () => {
     setLoadingNotifications(true);
     try {
-      const data = await apiFetchAuth<NotificationDTO[]>(endpoints.notifications.list);
+      const data = await apiFetchAuth<NotificationDTO[]>(
+        endpoints.notifications.list(), // todas
+        { method: "GET" },
+      );
+
       setNotifications(data ?? []);
     } finally {
       setLoadingNotifications(false);
@@ -96,7 +100,7 @@ export default function DashboardPage() {
     try {
       await apiFetchAuth(endpoints.notifications.markRead(id), { method: "PATCH" });
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n)));
-    } catch {}
+    } catch { }
   };
 
   const counts = useMemo(
@@ -135,7 +139,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ status: "ACCEPTED" }),
       });
       if (doctorId) loadAppointments(doctorId);
-    } catch {}
+    } catch { }
   };
 
   const onReject = async (id: string) => {
@@ -146,15 +150,15 @@ export default function DashboardPage() {
         body: JSON.stringify({ status: "CANCELLED" }),
       });
       if (doctorId) loadAppointments(doctorId);
-    } catch {}
+    } catch { }
   };
 
   return (
     <main className="max-w-6xl mx-auto p-6 space-y-6">
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold">
-          Hola
-          {me?.name ? `, ${me.name}` : me?.email ? `, ${me.email}` : ""}
+          Hola Dr.
+          {me?.name ? `, ${me.name}` : me?.name ? `, ${me.name}` : ""}
         </h1>
         <p className="text-sm text-muted-foreground">Bienvenido a tu panel. Revisa tus citas.</p>
       </header>
@@ -183,8 +187,8 @@ export default function DashboardPage() {
               appt={toCard(a)}
               onAccept={() => onAccept(a.id)}
               onReject={() => onReject(a.id)}
-              onOpen={() => {}}
-              onStart={() => {}}
+              onOpen={() => { }}
+              onStart={() => { }}
             />
           ))}
         </section>
@@ -197,7 +201,7 @@ export default function DashboardPage() {
             <AppointmentCard
               key={a.id}
               appt={toCardAccepted(a)}
-              onOpen={() => {}}
+              onOpen={() => { }}
               onStart={() => router.push(`/doctor/appointments/${a.id}/call`)}
             />
           ))}

@@ -62,9 +62,14 @@ export const endpoints = {
     me: "/users/me",
   },
 
-  notifications: {
-    list: "/notifications", 
-    markAllRead: "/notifications/read-all",
+    notifications: {
+    list: (onlyUnread?: boolean) =>
+      `/notifications${onlyUnread ? "?onlyUnread=true" : ""}`,
+
+    markAllRead: "/notifications/read-all", 
+
+   
+    markRead: (id: string) => `/notifications/${id}/read`,
   },
   chat: {
     historyByAppointment: (id: string) => `/chat/appointments/${id}`,
