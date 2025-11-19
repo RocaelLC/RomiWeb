@@ -1,0 +1,67 @@
+/* ROMI Brand Theme Tokens
+   BREAKING: Replaces previous OKLCH variables with fixed ROMI palette.
+   Foregrounds adjusted to ensure AA contrast over brand backgrounds. */
+
+:root {
+  /* Core brand */
+  --primary: #d58b88; /* PRIMARY_ROSE */
+  --primary-foreground: #363434; /* BLACK for contrast */
+
+  --secondary: #E3C094; /* SECONDARY_BEIGE */
+  --secondary-foreground: #ffffff; /* BLACK */
+
+  --accent: #C7D68F; /* SECONDARY_OLIVE */
+  --accent-foreground: #ffffff; /* BLACK */
+
+  /* Base */
+  --background: #FFFFFF;
+  --foreground: #201f1f;
+
+  /* Surfaces */
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+
+  /* Feedback */
+  --muted: #F7ECEA; /* soft tint derived from primary */
+  --muted-foreground: #000000;
+
+  --success: #C7D68F; /* maps to SECONDARY_OLIVE */
+  --success-foreground: #000000;
+
+  --warning: #E3C094; /* maps to SECONDARY_BEIGE */
+  --warning-foreground: #000000;
+
+  /* lighter PRIMARY_ROSE for info */
+  --info: #E7B5B3; 
+  --info-foreground: #000000;
+
+  /* System */
+  --destructive: #B00020; /* unchanged brand; used for errors */
+  --border: #E5E5E5;
+  --input: #E5E5E5;
+  --ring: #D58B88; /* primary ring */
+
+  /* Sidebar (optional) */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: var(--ring);
+
+  /* Radius */
+  --radius: 0.625rem;
+}
+
+/* Gradients */
+.bg-gradient-romi {
+  background: linear-gradient(90deg, #da4a45f3 0%, #fd7171a8 100%);
+}
+.bg-gradient-romi-variant {
+  background: linear-gradient(90deg, #E3C094 0%, #C7D68F 100%);
+}
+

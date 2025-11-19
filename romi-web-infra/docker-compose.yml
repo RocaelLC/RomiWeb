@@ -1,0 +1,70 @@
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: romi_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: romi
+      POSTGRES_PASSWORD: romi
+      POSTGRES_DB: romi
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U romi -d romi"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - romi_pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ../romi-backend
+      dockerfile: Dockerfile
+    container_name: romi_api
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ../romi-backend/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: romi
+      DB_PASS: romi
+      DB_NAME: romi
+      DATABASE_URL: postgresql://romi:romi@db:5432/romi
+      NODE_ENV: production
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../romi-frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-http://localhost:3001}
+        NEXT_PUBLIC_AZURE_B2C_CLIENT_ID: ${NEXT_PUBLIC_AZURE_B2C_CLIENT_ID:?set in .env}
+        NEXT_PUBLIC_AZURE_B2C_TENANT: ${NEXT_PUBLIC_AZURE_B2C_TENANT:?set in .env}
+        NEXT_PUBLIC_AZURE_B2C_USER_FLOW: ${NEXT_PUBLIC_AZURE_B2C_USER_FLOW:?set in .env}
+        NEXT_PUBLIC_REDIRECT_URI: ${NEXT_PUBLIC_REDIRECT_URI:-http://localhost:3002}
+    container_name: romi_web
+    depends_on:
+      - api
+    # Opcional: variables de runtime
+    environment:
+      NODE_ENV: production
+      # Si dentro del servidor Next (SSR) necesitas hablar a la red interna:
+      API_BASE_INTERNAL: http://api:3001
+      # Ojo: lo "PUBLIC" debe ser alcanzable desde el navegador (host), por eso localhost.
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-http://localhost:3001}
+    env_file:
+      - ../romi-frontend/.env.local
+    ports:
+      - "3002:3000"
+    restart: unless-stopped
+
+volumes:
+  romi_pgdata:
