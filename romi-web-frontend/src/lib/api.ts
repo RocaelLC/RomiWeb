@@ -52,28 +52,29 @@ export const endpoints = {
   appointments: {
     byPatient: "/appointments/patient",
     byDoctor: (id: string) => `/appointments/doctor/${id}`,
+    byId: (id: string) => `/appointments/${id}`,         
     create: "/appointments",
     updateStatus: (id: string) => `/appointments/${id}/status`,
-    delete: (id: string) => `/appointments/${id}`, 
+    delete: (id: string) => `/appointments/${id}`,
     historyMe: "/appointments/history/me"
-},
+  },
   users: {
     listDoctors: "/users/doctors",
     me: "/users/me",
   },
 
-    notifications: {
+  notifications: {
     list: (onlyUnread?: boolean) =>
       `/notifications${onlyUnread ? "?onlyUnread=true" : ""}`,
 
-    markAllRead: "/notifications/read-all", 
+    markAllRead: "/notifications/read-all",
 
-   
+
     markRead: (id: string) => `/notifications/${id}/read`,
   },
   chat: {
     historyByAppointment: (id: string) => `/chat/appointments/${id}`,
   },
 };
- 
+
 
