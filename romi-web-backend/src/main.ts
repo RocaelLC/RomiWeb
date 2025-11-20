@@ -6,8 +6,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000', 
-      'https://romi-rmsch63xn-soyrocaels-projects.vercel.app',
+      'http://localhost:3000',
+      'https://romi-web.vercel.app',
+      'https://romi-rmsch63xn-soyrocaels-projects.vercel.app', 
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
