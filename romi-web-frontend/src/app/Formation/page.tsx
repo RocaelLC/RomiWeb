@@ -11,6 +11,11 @@ import {
   PlayCircle,
   FileText,
   Headphones,
+  Award,
+  TrendingUp,
+  Layers,
+  Sparkles,
+  Compass
 } from "lucide-react";
 
 export const metadata = {
@@ -113,69 +118,74 @@ const calculators = [
 
 export default function FormationPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-white">
       {/* HERO */}
-      <section className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-gradient-romi">
-        <div className="  mx-auto max-w-6xl px-4 py-24 text-center text-secondary-foreground">
-          {/* Título */}
-          <header className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl font-extrabold grid place-items-center">
-              Formación Médica Continua
-            </h1>
-            <p className="mt-1 text-sm sm:text-base text-secondary-foreground">
-              Mantente actualizado con los últimos avances médicos. Cursos,
-              talleres, recursos y herramientas para el desarrollo profesional
-              continuo.
-            </p>
-          </header>
-
-          {/* Botones principales (Certificaciones / Clases en vivo / Recursos) */}
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <button className="inline-flex items-center gap-2 rounded-full bg-white shadow-sm px-4 py-2 text-xs sm:text-sm font-medium text-foreground border border-[#d58b88]/20">
-              <GraduationCap className="h-4 w-4 text-[#d58b88]" />
-              Certificaciones
-            </button>
-            <button className="inline-flex items-center gap-2 rounded-full bg-white shadow-sm px-4 py-2 text-xs sm:text-sm font-medium text-foreground border border-[#d58b88]/20">
-              <Video className="h-4 w-4 text-[#d58b88]" />
-              Clases en Vivo
-            </button>
-            <button className="inline-flex items-center gap-2 rounded-full bg-white shadow-sm px-4 py-2 text-xs sm:text-sm font-medium text-foreground border border-[#d58b88]/20">
-              <Download className="h-4 w-4 text-[#d58b88]" />
-              Recursos Gratuitos
-            </button>
-          </div>
-
-          {/* Tabs (Cursos / Talleres / Recursos / Calculadoras) */}
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <TabPill icon={BookOpen} label="Cursos" active />
-            <TabPill icon={Users} label="Talleres" active />
-            <TabPill icon={Download} label="Recursos" active/>
-            <TabPill icon={Calculator} label="Calculadoras" active/>
+      <section className="relative left-1/2 -translate-x-1/2 w-screen overflow-hidden">
+        {/* Fondo con capas */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#d58b88] via-[#d79c9c] to-[#dabebd]" />
+        <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#edcccc]/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-[#dabebd]/40 rounded-full blur-3xl" />
+        <div className="relative mx-auto max-w-7xl px-6 pt-28 pb-24">
+          <div className="grid md:grid-cols-5 gap-10 items-center">
+            {/* Texto principal */}
+            <div className="md:col-span-3 text-white">
+              <h1 className="font-fredoka-one text-5xl md:text-6xl leading-tight drop-shadow-sm">
+                Formación Médica <span className="text-[#EBD9D8]">Integral</span>
+              </h1>
+              <p className="mt-6 text-base md:text-lg text-white/90 font-poppins max-w-xl">
+                Aprende, actualiza y certifica tus habilidades clínicas con contenido curado, casos reales y recursos descargables.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="#cursos" aria-label="Ir a cursos" className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#d58b88] shadow hover:shadow-lg hover:scale-[1.04] transition">
+                  <BookOpen className="h-5 w-5" /> Cursos
+                </a>
+                <a href="#talleres" aria-label="Ir a talleres" className="inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur px-7 py-3 text-sm font-semibold text-[#d58b88] border border-white/50 hover:bg-white transition">
+                  <Users className="h-5 w-5" /> Talleres
+                </a>
+                <a href="#recursos" aria-label="Ir a recursos" className="inline-flex items-center gap-2 rounded-full bg-[#c7d68f] px-7 py-3 text-sm font-semibold text-white shadow hover:bg-[#bfcf82] transition">
+                  <Download className="h-5 w-5" /> Recursos
+                </a>
+              </div>
+              {/* Métricas inline */}
+              <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
+                <MiniMetric icon={Award} value="35+" label="Certificaciones" />
+                <MiniMetric icon={TrendingUp} value="97%" label="Satisfacción" />
+                <MiniMetric icon={Layers} value="1.2K" label="Recursos" />
+              </div>
+            </div>
+            {/* Panel lateral navegación */}
+            <aside className="md:col-span-2">
+              <nav aria-label="Categorías" className="rounded-3xl bg-white/80 backdrop-blur border border-[#d58b88]/20 p-6 flex flex-col gap-4 shadow-lg">
+                <h2 className="text-[#d58b88] font-fredoka-one text-xl flex items-center gap-2"><Compass className="h-5 w-5" /> Navegación</h2>
+                <SideLink active icon={BookOpen} label="Cursos" />
+                <SideLink icon={Users} label="Talleres" />
+                <SideLink icon={Download} label="Recursos" />
+                <SideLink icon={Calculator} label="Calculadoras" />
+                <SideLink icon={Video} label="Clases en Vivo" />
+                <SideLink icon={GraduationCap} label="Certificaciones" />
+              </nav>
+            </aside>
           </div>
         </div>
       </section>
 
-      {/* CURSOS ESPECIALIZADOS */}
-      <section className="mx-auto max-w-6xl px-4 py-14 lg:py-16 space-y-8">
+      {/* CURSOS ESPECIALIZADOS (v2) */}
+      <section id="cursos" className="relative left-1/2 -translate-x-1/2 w-screen scroll-mt-24 bg-white">
+        <div className="mx-auto max-w-7xl px-8 py-24 space-y-14">
         <header className="text-center max-w-3xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-            Cursos <span className="text-[#d58b88]">Especializados</span>
-          </h2>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-            Programas de formación diseñados por expertos para el desarrollo
-            profesional médico.
-          </p>
+          <h2 className="text-4xl font-fredoka-one text-[#d58b88] mb-5">Cursos Especializados</h2>
+          <p className="text-base text-gray-600 font-poppins">Programas con enfoque práctico y evidencia actual para elevar tu perfil clínico.</p>
         </header>
 
         <div className="grid gap-6 md:grid-cols-3">
           {courses.map((course) => (
             <article
               key={course.title}
-              className="rounded-3xl border border-border bg-card shadow-sm overflow-hidden flex flex-col"
+              className="group rounded-3xl border border-[#d58b88]/20 bg-white shadow-sm overflow-hidden flex flex-col hover:shadow-2xl hover:-translate-y-1 transition duration-300"
             >
-              {/* Header tipo overlay simulando gradiente del prototipo */}
-              <div className="relative h-32 bg-[#e3c094]" />
-              <div className="p-5 sm:p-6 flex-1 flex flex-col gap-3 -mt-10 relative">
+              <div className="relative h-36 bg-[#edcccc]">
+              </div>
+              <div className="p-6 flex-1 flex flex-col gap-4 -mt-14 relative">
                 <div className="flex justify-between items-center text-xs">
                   <span className="inline-flex items-center rounded-full bg-white/90 px-3 py-1 font-medium text-[#d58b88] border border-white shadow-sm">
                     {course.levelTag}
@@ -186,7 +196,7 @@ export default function FormationPage() {
                 </div>
 
                 <div>
-                  <h3 className="mt-2 text-base sm:text-lg font-semibold text-foreground">
+                  <h3 className="mt-2 text-lg font-semibold text-gray-900 font-poppins">
                     {course.title}
                   </h3>
                   <p className="mt-1 text-xs sm:text-sm text-[#d58b88] font-medium">
@@ -205,53 +215,50 @@ export default function FormationPage() {
                   </p>
                 </div>
 
-                <div className="mt-2 flex items-center justify-between">
+                <div className="mt-1 flex items-center justify-between">
                   <div className="flex items-center gap-1 text-xs text-[#e3c094]">
-                    <Star className="h-4 w-4 fill-[#e3c094] text-[#e3c094]" />
-                    <span className="text-foreground">{course.rating}</span>
+                    <Star className="h-4 w-4 fill-[#e3c094] text-[#e3c094]" aria-hidden="true" />
+                    <span className="text-gray-700">{course.rating}</span>
                   </div>
-                  <span className="text-lg font-semibold text-[#d58b88]">
-                    {course.price}
-                  </span>
+                  <span className="text-lg font-semibold text-[#d58b88]">{course.price}</span>
                 </div>
 
-                <button className="mt-4 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-4 py-2 text-xs sm:text-sm font-medium text-white shadow ">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Inscribirse Ahora
+                <button aria-label={`Inscribirse al curso ${course.title}`} className="mt-3 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-5 py-2.5 text-xs sm:text-sm font-medium text-white shadow focus:outline-none focus:ring-2 focus:ring-[#d58b88]">
+                  <BookOpen className="h-4 w-4 mr-2" aria-hidden="true" /> Inscribirse
                 </button>
               </div>
             </article>
           ))}
         </div>
+        </div>
       </section>
 
-      {/* CTA INTERMEDIA */}
-      <section className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-gradient-romi">
-        <div className="mx-auto max-w-6xl px-4 py-12 lg:py-14 text-center text-white space-y-4">
-          <h2 className="text-2xl sm:text-3xl font-semibold">
-            ¿Listo para avanzar en tu carrera?
+      {/* STRIP CTA (v2 fondo blanco) */}
+      <section className="relative left-1/2 -translate-x-1/2 w-screen py-20 bg-white border-t border-[#edcccc]">
+        <div className="max-w-5xl mx-auto px-6 text-center text-[#2d2d2d] space-y-6">
+          <h2 className="text-3xl md:text-4xl font-fredoka-one text-[#d58b88]">
+            Impulsa tu Carrera Médica Hoy
           </h2>
-          <p className="text-sm sm:text-base max-w-2xl mx-auto">
-            Únete a profesionales que están transformando su práctica con
-            formación médica continua y herramientas digitales.
+          <p className="text-sm md:text-base font-poppins max-w-2xl mx-auto text-gray-600">
+            Accede a rutas de formación, talleres prácticos y recursos exclusivos que elevan tu perfil profesional.
           </p>
-          <button className="inline-flex items-center justify-center rounded-full bg-white/95 px-6 py-2.5 text-sm font-medium text-[#d58b88] shadow hover:bg-white transition">
-            <GraduationCap className="h-4 w-4 mr-2" />
-            Explorar todos los cursos
-          </button>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button aria-label="Ver rutas" className="inline-flex items-center gap-2 rounded-full bg-[#d58b88] px-8 py-3 text-sm font-semibold text-white shadow hover:shadow-lg hover:scale-[1.04] transition focus:outline-none focus:ring-2 focus:ring-[#d58b88]">
+              <GraduationCap className="h-5 w-5" /> Rutas Formativas
+            </button>
+            <button aria-label="Solicitar asesoría" className="inline-flex items-center gap-2 rounded-full bg-[#c7d68f] px-8 py-3 text-sm font-semibold text-white shadow hover:bg-[#bfcf82] transition focus:outline-none focus:ring-2 focus:ring-[#c7d68f]">
+              <Sparkles className="h-5 w-5" /> Asesoría
+            </button>
+          </div>
         </div>
       </section>
 
       {/* TALLERES Y SIMPOSIOS */}
-      <section className="mx-auto max-w-6xl px-4 py-14 lg:py-16 space-y-8">
+      <section id="talleres" className="relative left-1/2 -translate-x-1/2 w-screen scroll-mt-24 bg-white">
+        <div className="mx-auto max-w-7xl px-8 py-20 space-y-10">
         <header className="text-center max-w-3xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-            Talleres y <span className="text-[#d58b88]">Simposios</span>
-          </h2>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-            Eventos presenciales y virtuales para el intercambio de
-            conocimientos.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-fredoka-one text-[#d58b88] mb-4">Talleres y Simposios</h2>
+          <p className="text-sm md:text-base text-gray-600 font-poppins">Eventos presenciales y virtuales para intercambio de conocimiento.</p>
         </header>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -289,25 +296,21 @@ export default function FormationPage() {
                 </div>
               </div>
 
-              <button className="mt-5 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-6 py-2 text-xs sm:text-sm font-medium text-white shadow ">
-                <Users className="h-4 w-4 mr-2" />
-                Reservar mi lugar
+              <button aria-label={`Reservar taller ${wk.title}`} className="mt-5 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-6 py-2 text-xs sm:text-sm font-medium text-white shadow focus:outline-none focus:ring-2 focus:ring-[#d58b88]">
+                <Users className="h-4 w-4 mr-2" aria-hidden="true" /> Reservar
               </button>
             </article>
           ))}
         </div>
+        </div>
       </section>
 
       {/* BIBLIOTECA DE RECURSOS */}
-      <section className="border-y border-border bg-muted/40">
-        <div className="mx-auto max-w-6xl px-4 py-14 lg:py-16 space-y-8">
+      <section id="recursos" className="relative left-1/2 -translate-x-1/2 w-screen scroll-mt-24 border-y border-[#d58b88]/20 bg-[#FDFBFA]">
+        <div className="mx-auto max-w-7xl px-8 py-20 space-y-10">
           <header className="text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-              Biblioteca de <span className="text-[#d58b88]">Recursos</span>
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-              Accede a guías, videos, podcasts y material educativo actualizado.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-fredoka-one text-[#d58b88] mb-4">Biblioteca de Recursos</h2>
+            <p className="text-sm md:text-base text-gray-600 font-poppins">Guías, videos, podcasts y material educativo siempre actualizado.</p>
           </header>
 
           <div className="grid gap-5">
@@ -337,9 +340,8 @@ export default function FormationPage() {
                     </div>
                   </div>
 
-                  <button className="mt-5 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-6 py-2 text-xs sm:text-sm font-medium text-white shadow ">
-                    <Download className="h-4 w-4 mr-2" />
-                    {res.actionLabel}
+                  <button aria-label={`${res.actionLabel} recurso ${res.title}`} className="mt-5 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-6 py-2 text-xs sm:text-sm font-medium text-white shadow focus:outline-none focus:ring-2 focus:ring-[#d58b88]">
+                    <Download className="h-4 w-4 mr-2" aria-hidden="true" /> {res.actionLabel}
                   </button>
                 </article>
               );
@@ -349,14 +351,11 @@ export default function FormationPage() {
       </section>
 
       {/* CALCULADORAS MÉDICAS */}
-      <section className="mx-auto max-w-6xl px-4 py-14 lg:py-16">
+      <section id="calculadoras" className="relative left-1/2 -translate-x-1/2 w-screen scroll-mt-24 bg-white">
+        <div className="mx-auto max-w-7xl px-8 py-20">
         <header className="text-center max-w-3xl mx-auto mb-8">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-            Calculadoras <span className="text-[#d58b88]">Médicas</span>
-          </h2>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-            Herramientas interactivas para cálculos clínicos y diagnósticos.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-fredoka-one text-[#d58b88] mb-4">Calculadoras Médicas</h2>
+          <p className="text-sm md:text-base text-gray-600 font-poppins">Herramientas interactivas para cálculos clínicos y apoyo diagnóstico.</p>
         </header>
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -390,12 +389,12 @@ export default function FormationPage() {
                 </div>
               </div>
 
-              <button className="mt-5 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-6 py-2 text-xs sm:text-sm font-medium text-white shadow ">
-                <Calculator className="h-4 w-4 mr-2" />
-                Usar Calculadora
+              <button aria-label={`Usar calculadora ${calc.title}`} className="mt-5 inline-flex items-center justify-center rounded-full bg-[#c7d68f] hover:bg-[#b95859] transition px-6 py-2 text-xs sm:text-sm font-medium text-white shadow focus:outline-none focus:ring-2 focus:ring-[#d58b88]">
+                <Calculator className="h-4 w-4 mr-2" aria-hidden="true" /> Usar
               </button>
             </article>
           ))}
+        </div>
         </div>
       </section>
     </main>
@@ -413,19 +412,58 @@ function TabPill({
   label: string;
   active?: boolean;
 }) {
+  const base = "inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium border transition focus:outline-none focus:ring-2 focus:ring-[#d58b88]";
   if (active) {
     return (
-      <button className="inline-flex items-center gap-2 rounded-full bg-white shadow-md px-5 py-2 text-sm font-medium text-[#d58b88] border border-[#d58b88]/40">
-        <Icon className="h-4 w-4" />
-        {label}
+      <button role="tab" aria-selected="true" className={`${base} bg-white text-[#d58b88] border-[#d58b88]/40 shadow-md`}>
+        <Icon className="h-4 w-4" aria-hidden="true" /> {label}
       </button>
     );
   }
-
   return (
-    <button className="inline-flex items-center gap-2 rounded-full bg-white/70 px-5 py-2 text-sm font-medium text-muted-foreground border border-border hover:bg-white shadow-sm transition">
-      <Icon className="h-4 w-4" />
-      {label}
+    <button role="tab" aria-selected="false" className={`${base} bg-white/70 text-gray-600 border-border hover:bg-white shadow-sm`}>
+      <Icon className="h-4 w-4" aria-hidden="true" /> {label}
     </button>
+  );
+}
+
+function Metric({ icon: Icon, label, value }: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 py-6 px-4 flex flex-col items-center text-white">
+      <Icon className="h-6 w-6 mb-2" aria-hidden="true" />
+      <span className="text-xl font-semibold font-fredoka-one">{value}</span>
+      <span className="text-xs tracking-wide uppercase opacity-80 font-poppins">{label}</span>
+    </div>
+  );
+}
+
+// Mini metric for inline small stats in hero
+function MiniMetric({ icon: Icon, value, label }: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; value: string; label: string }) {
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-white opacity-90" aria-hidden="true" />
+        <span className="text-sm font-semibold text-white font-poppins">{value}</span>
+      </div>
+      <span className="text-[11px] tracking-wide uppercase text-white/70 font-poppins">{label}</span>
+    </div>
+  );
+}
+
+// Side navigation link component
+function SideLink({ icon: Icon, label, active = false }: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string; active?: boolean }) {
+  const href = `#${label.toLowerCase().split(' ')[0]}`; // cursos, talleres, recursos, calculadoras, etc.
+  const base = "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition border focus:outline-none focus:ring-2 focus:ring-[#d58b88]";
+  if (active) {
+    return (
+      <a href={href} aria-current="page" className={`${base} bg-[#d58b88] text-white border-[#d58b88] shadow-sm hover:shadow-md`}> 
+        <Icon className="h-4 w-4" aria-hidden="true" /> {label}
+      </a>
+    );
+  }
+  return (
+    <a href={href} className={`${base} bg-white/80 text-[#2d2d2d] border-[#d58b88]/20 hover:bg-[#edcccc]/60 hover:border-[#d58b88]/40`}> 
+      <Icon className="h-4 w-4 text-[#d58b88]" aria-hidden="true" /> {label}
+    </a>
   );
 }

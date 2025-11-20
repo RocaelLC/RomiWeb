@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Clean Next cache and run dev",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"if (Test-Path .next) { Remove-Item -Recurse -Force .next }; npm run dev"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Clean Next cache and run dev",
+			"type": "shell",
+			"command": "if (Test-Path .next) { Remove-Item -Recurse -Force .next }; npm run dev",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

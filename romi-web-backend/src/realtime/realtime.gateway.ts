@@ -4,7 +4,9 @@
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+// Avoid direct socket.io dependency; use loose types so code compiles under ws adapter
+type Socket = { id?: string } & any;
+type Server = any;
 
 @WebSocketGateway({
   cors: {

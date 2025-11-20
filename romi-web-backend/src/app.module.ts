@@ -15,22 +15,25 @@ import { CronModule } from './cron/cron.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-  TypeOrmModule.forRoot({
-  type: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  extra: {
-    sslmode: 'require',
-  },
-  autoLoadEntities: true,
-  synchronize: true,
-}),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      // Enable SSL only when explicitly requested
+      ssl:
+        (process.env.DB_SSL ?? 'false').toLowerCase() === 'true'
+          ? { rejectUnauthorized: false }
+          : undefined,
+      extra:
+        (process.env.DB_SSL ?? 'false').toLowerCase() === 'true'
+          ? { sslmode: 'require' }
+          : undefined,
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
     RolesModule,
     UsersModule,
     AuthModule,
