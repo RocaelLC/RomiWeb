@@ -11,7 +11,6 @@ import { apiFetchAuth, endpoints } from "@/lib/api";
 
 const LINKS = [
   { href: "/", label: "Inicio" },
-  { href: "/Presentation", label: "Presentación" },
   { href: "/Services", label: "Servicios" },
   { href: "/Formation", label: "Formación" },
   { href: "/Investigation", label: "Investigación" },
@@ -74,32 +73,31 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-4">
-          <Link href="/" className="font-bold text-xl tracking-tight text-primary">
-            <div className="flex items-center w-32">
-              <Image
-                src="/images/ROMO.png"
-                alt="ROMI"
-                width={130}
-                height={40}
-                className="object-contain"
-              />
-            </div>
+      <nav className="sticky top-0 z-50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2 group">
+            <Image
+              src="/images/ROMO.png"
+              alt="ROMI"
+              width={120}
+              height={40}
+              className="object-contain transition-transform group-hover:scale-105"
+            />
+            
           </Link>
 
           {/* LINKS PÚBLICOS */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1">
             {LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`px-3 py-1.5 rounded-full text-l transition ${isActive(l.href)
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
+                className={`relative px-3 py-2 text-sm font-medium transition-colors ${isActive(l.href)
+                  ? "text-primary"
+                  : "text-gray-600 hover:text-gray-900"}`}
               >
                 {l.label}
+                <span className={`absolute left-2 right-2 -bottom-1 h-[2px] rounded-full bg-primary transition-opacity ${isActive(l.href) ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'}`}></span>
               </Link>
             ))}
           </div>
@@ -107,12 +105,12 @@ export default function Nav() {
           <div className="flex-1" />
 
           {/* DESKTOP */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-3">
             {/*  Panel según rol */}
             {isLoggedIn && isDoctor && (
               <Link
                 href={doctorDashboardHref}
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-white px-3 py-2 text-sm font-medium text-primary hover:bg-primary/5 whitespace-nowrap"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Solicitudes</span>
@@ -122,7 +120,7 @@ export default function Nav() {
             {isLoggedIn && isPatient && (
               <Link
                 href={patientDashboardHref}
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-white px-3 py-2 text-sm font-medium text-primary hover:bg-primary/5 whitespace-nowrap"
               >
                 <CalendarDays className="h-4 w-4" />
                 <span>Mis citas</span>
@@ -130,10 +128,10 @@ export default function Nav() {
             )}
 
             {/* Chat ROMI */}
-            <div className="relative">
+            <div className="relative group">
               <Link
                 href="/chat"
-                className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-sm hover:bg-primary/90 whitespace-nowrap"
+                className="px-4 py-2.5 rounded-full bg-gradient-to-r from-[#d58b88] via-[#d79c9c] to-[#dabebd] text-white text-sm font-medium hover:scale-105 hover:shadow-lg hover:shadow-[#d58b88]/30 whitespace-nowrap shadow-md transition-all duration-300 ease-out"
               >
                 Chat ROMI
               </Link>
@@ -148,14 +146,14 @@ export default function Nav() {
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-sm hover:bg-primary/90 whitespace-nowrap"
+                className="px-4 py-2.5 rounded-full bg-gradient-to-r from-[#d58b88] via-[#d79c9c] to-[#dabebd] text-white text-sm font-medium hover:scale-105 hover:shadow-lg hover:shadow-[#d58b88]/30 whitespace-nowrap shadow-md transition-all duration-300 ease-out"
               >
                 Cerrar sesión
               </button>
             ) : (
               <Link
                 href="/Auth/Login"
-                className="px-3 py-1.5 rounded-full text-sm border hover:bg-muted"
+                className="px-4 py-2.5 rounded-full text-sm font-medium border-2 border-[#d58b88] text-[#d58b88] bg-white hover:bg-[#d58b88] hover:text-white hover:scale-105 hover:shadow-lg hover:shadow-[#d58b88]/20 whitespace-nowrap transition-all duration-300 ease-out"
               >
                 Iniciar sesión
               </Link>
@@ -164,7 +162,7 @@ export default function Nav() {
 
           {/* BOTÓN MENÚ MOBILE */}
           <button
-            className="md:hidden ml-auto p-2 rounded hover:bg-muted"
+            className="md:hidden ml-auto p-2 rounded-md hover:bg-gray-100 active:scale-95 transition"
             onClick={() => setOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -174,17 +172,16 @@ export default function Nav() {
 
         {/* MOBILE */}
         {open && (
-          <div className="md:hidden border-t border-border bg-white/80 backdrop-blur">
-            <div className="px-4 py-3 flex flex-col gap-1">
+          <div className="md:hidden border-t border-gray-200 bg-white shadow-inner">
+            <div className="px-4 py-4 flex flex-col gap-2">
               {LINKS.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className={`px-3 py-2 rounded-md text-sm transition ${isActive(l.href)
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(l.href)
+                    ? "text-primary bg-primary/5"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`}
                 >
                   {l.label}
                 </Link>
@@ -195,7 +192,7 @@ export default function Nav() {
                 <Link
                   href={doctorDashboardHref}
                   onClick={() => setOpen(false)}
-                  className="mt-1 px-3 py-2 rounded-md text-sm border border-primary/40 bg-primary/10 text-primary flex items-center gap-2 hover:bg-primary/15 whitespace-nowrap"
+                  className="mt-1 px-3 py-2 rounded-md text-sm border border-primary/30 bg-white text-primary flex items-center gap-2 hover:bg-primary/5 whitespace-nowrap"
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   <span>Panel médico</span>
@@ -206,7 +203,7 @@ export default function Nav() {
                 <Link
                   href={patientDashboardHref}
                   onClick={() => setOpen(false)}
-                  className="mt-1 px-3 py-2 rounded-md text-sm border border-primary/40 bg-primary/10 text-primary flex items-center gap-2 hover:bg-primary/15 whitespace-nowrap"
+                  className="mt-1 px-3 py-2 rounded-md text-sm border border-primary/30 bg-white text-primary flex items-center gap-2 hover:bg-primary/5 whitespace-nowrap"
                 >
                   <CalendarDays className="h-4 w-4" />
                   <span>Mis citas</span>
@@ -216,11 +213,11 @@ export default function Nav() {
               <div className="h-2" />
 
               {/* Chat ROMI */}
-              <div className="relative">
+              <div className="relative group">
                 <Link
                   href="/chat"
                   onClick={() => setOpen(false)}
-                  className="px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm text-center hover:bg-primary/90 whitespace-nowrap"
+                  className="block px-4 py-2.5 rounded-full bg-gradient-to-r from-[#d58b88] via-[#d79c9c] to-[#dabebd] text-white text-sm text-center font-medium hover:scale-[1.02] hover:shadow-lg hover:shadow-[#d58b88]/30 whitespace-nowrap shadow-md transition-all duration-300 ease-out"
                 >
                   Chat ROMI
                 </Link>
@@ -235,7 +232,7 @@ export default function Nav() {
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="mt-1 px-3 py-2 rounded-md text-sm border hover:bg-muted"
+                  className="mt-1 w-full px-4 py-2.5 rounded-full bg-gradient-to-r from-[#d58b88] via-[#d79c9c] to-[#dabebd] text-white text-sm font-medium hover:scale-[1.02] hover:shadow-lg hover:shadow-[#d58b88]/30 shadow-md transition-all duration-300 ease-out"
                 >
                   Cerrar sesión
                 </button>
@@ -243,7 +240,7 @@ export default function Nav() {
                 <Link
                   href="/Auth/Login"
                   onClick={() => setOpen(false)}
-                  className="mt-1 px-3 py-2 rounded-md text-sm border text-center hover:bg-muted"
+                  className="mt-1 block px-4 py-2.5 rounded-full text-sm font-medium border-2 border-[#d58b88] text-[#d58b88] bg-white hover:bg-[#d58b88] hover:text-white hover:scale-[1.02] hover:shadow-lg hover:shadow-[#d58b88]/20 text-center transition-all duration-300 ease-out"
                 >
                   Iniciar sesión
                 </Link>

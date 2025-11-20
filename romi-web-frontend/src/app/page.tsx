@@ -1,150 +1,285 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Book, Brain, HeartPlus, Calendar } from "lucide-react";
-import { BookmarkX as BookmarkSlashIcon } from "lucide-react";
-type Slide = {
-  title: string;
-  subtitle: string;
-  description?: string;
-  ctaText?: string;
-  ctaHref?: string;
-};
-//declaro los slides con sus propiedades2
-const slides: Slide[] = [
-  {
-    title: "ROMI - Tu Asistente Médico Inteligente",
-    subtitle: "Inteligencia artificial al servicio de la medicina",
-    description: "Obtén respuestas médicas precisas y actualizadas las 24 horas del día",
-    ctaText: "Probar ROMI",
-    ctaHref: "/chat",
-  },
-  {
-    title: "Telemedicina integrada",
-    subtitle: "Agenda, videollamadas y notas clínicas",
-    description: "Todo en un solo lugar, seguro y rápido",
-    ctaText: "Ver funciones",
-    ctaHref: "/Presentation",
-  },
-  {
-    title: "Cumplimiento y seguridad",
-    subtitle: "Roles, auditoría y respaldos",
-    description: "Mejores prácticas para proteger a tus pacientes",
-    ctaText: "Conócenos",
-    ctaHref: "/AboutUs",
-  },
-];
+import { Heart, Lightbulb, Shield, Users, Globe, Zap, User } from "lucide-react";
 
 export default function Home() {
-  const [i, setI] = useState(0);
-  const total = slides.length;
-  const timer = useRef<NodeJS.Timeout | null>(null);
-
-  // en este bloque utilice un useEffect para que el slider avance automáticamente cada 6 segundos, utilizando setInterval.
-  useEffect(() => {
-    timer.current && clearInterval(timer.current);
-    timer.current = setInterval(() => setI((v) => (v + 1) % total), 6000);
-    return () => {
-      if (timer.current) clearInterval(timer.current);
-    };
-  }, [i, total]);
-
-  const go = (idx: number) => {
-    if (timer.current) clearInterval(timer.current);
-    setI(idx);
-  };
 
   return (
-    <main className="min-h-screen">
-      <section className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen">
-        <div className="relative isolate overflow-hidden bg-gradient-romi">
-          {/* Track */}
-          <div
-            className="flex transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${i * 100}%)` }}
-          >
-            {slides.map((s, idx) => (
-              <div key={idx} className="w-full shrink-0">
-                <div className="max-w-6xl mx-auto px-4 py-20 md:py-28">
-                  <h1 className="text-center text-4xl md:text-6xl font-extrabold text-white">
-                    {s.title}
-                  </h1>
-                  <p className="mt-4 text-lg md:text-2xl text-center text-white/90">
-                    {s.subtitle}
-                  </p>
-                  {s.description && (
-                    <p className="mt-2 text-center text-white/80">{s.description}</p>
-                  )}
-                  <div className="mt-8 flex justify-center gap-4">
-                    {s.ctaText && s.ctaHref && (
-                      <Link
-                        href={s.ctaHref}
-                        className="px-6 py-3 rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90"
-                      >
-                        {s.ctaText} →
-                      </Link>
-                    )}
-                  </div>
-                </div>
+    <main className="min-h-screen ">
+      {/* Hero Section - ROMI Welcome */}
+      <section className="relative overflow-hidden pt-6 pb-8 mt-20">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="grid md:grid-cols-3 gap-0 items-center min-h-[350px]">
+            {/* Left - RO Text */}
+            <div className="flex items-center justify-end pr-0">
+              <h1 className="text-[80px] md:text-[100px] font-bold text-white tracking-widest leading-none -mr-11 font-fredoka-one">
+                RO
+              </h1>
+            </div>
+
+            {/* Center - ROMI Image */}
+            <div className="flex items-center justify-center">
+              <div className="relative w-full aspect-square max-w-xs">
+                <Image
+                  src="/images/imagen_bienvenida.png"
+                  alt="ROMI - Asistente Médico"
+                  width={800}
+                  height={800}
+                  priority
+                  className="object-contain"
+                />
               </div>
-            ))}
+            </div>
+
+            {/* Right - MI Text */}
+            <div className="flex items-center justify-start pl-0">
+              <h1 className="text-[80px] md:text-[100px] font-bold text-white tracking-widest leading-none -ml-6 font-fredoka-one">
+                MI
+              </h1>
+            </div>
           </div>
 
-          {/* Dots */}
-          <div className="absolute inset-x-0 bottom-6 flex items-center justify-center gap-2">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                aria-label={`Ir al slide ${idx + 1}`}
-                onClick={() => go(idx)}
-                className={`h-2.5 w-2.5 rounded-full bg-white/80 transition ${
-                  i === idx ? "scale-125" : "opacity-60"
-                }`}
-              />
-            ))}
+          {/* Title and Subtitle */}
+          <div className="text-center -mt-6">
+            <h2 className="text-3xl md:text-4xl text-white mb-3 font-fredoka-one">
+              Servicios Médicos Integrales
+            </h2>
+            <p className="text-base md:text-lg text-white/90 max-w-2xl mx-auto font-poppins">
+              Soluciones con tecnologías avanzadas para transformar la atención médica
+              y mejorar los resultados de salud
+            </p>
           </div>
         </div>
       </section>
 
-      <section>
-            <h1 className=" text-center text-3xl font-bold text-primary m-12">Servicios Principales</h1>
-            <p className="text-center text-base text-zinc-600 mt-2">
-               Descubre nuetras soluciones innovadoras diseñadas para transformar la atención médica.
+      {/* About Section */}
+      <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mt-10">
+        <div className="bg-white rounded-t-[4rem] p-12" style={{boxShadow: "0 -15px 50px rgba(0,0,0,0.25)"}}>
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+            <h2 className="text-4xl text-[#d58b88] mb-4 font-fredoka-one font-semibold">
+              ¿Quiénes somos?
+            </h2>
+            <p className="text-base text-gray-600 max-w-3xl mx-auto font-poppins">
+              Somos una plataforma integral que conecta profesionales de la salud con tecnología avanzada para mejorar la atención médica en todo el mundo.
             </p>
-            <section className="mt-10 grid md:grid-cols-4 gap-5 max-w-6xl mx-auto ">
-                <div className="rounded-2xl border  p-6 shadow-inner mt-6 text-center">
-                    <Brain className="mx-auto w-15 h-15 text-secondary" />
-                    <h2 className="font-semibold text-xl mt-7">Asistente ROMI</h2>
-                    <p className="text-sm text-zinc-600 mt-2">
-                        IA médica avanzada para consultas y diagnósticos
-                    </p>
-                </div>
-                <div className="rounded-2xl border p-6 shadow-inner mt-6 text-center">
-                    <HeartPlus className="mx-auto w-15 h-15 text-secondary" />
-                    <h2 className="font-semibold text-xl mt-7">Telesalud</h2>
-                    <p className="text-sm text-zinc-600 mt-2">
-                        Consultas médicas remotas con especialistas
-                    </p>
-                </div>
-                <div className="rounded-2xl border p-6 shadow-inner mt-6 text-center">
-                    <Book className="mx-auto w-15 h-15 text-accent" />
-                    <h2 className="font-semibold text-xl mt-7">Formación Médica</h2>
-                    <p className="text-sm text-zinc-600 mt-2">
-                        Cursos y recursos educativos actualizados
-                    </p>
-                </div>
-                <div className="rounded-2xl border p-6 shadow-inner mt-6 text-center">
-                    <Calendar className="mx-auto w-15 h-15 text-secondary" />
-                    <h2 className="font-semibold text-xl mt-7">Eventos Médicos</h2>
-                    <p className="text-sm text-zinc-600 mt-2">
-                       Congresos, simposios y conferencias
-                    </p>
-                </div>
-            </section>
-            <section className="mt-10 grid md:grid-cols-4 gap-5 max-w-6xl mx-auto ">
+          </div>
 
-            </section>
+          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+            <div className="space-y-4">
+              <p className="text-base text-gray-700 font-poppins leading-relaxed">
+                HubROMI nació de la visión de democratizar el acceso a la salud a través de la tecnología. Somos un equipo multidisciplinario de médicos, ingenieros y especialistas en salud digital.
+              </p>
+              <p className="text-base text-gray-700 font-poppins leading-relaxed">
+                Nuestra plataforma integra inteligencia artificial, telemedicina, educación médica continua y herramientas de gestión clínica en un ecosistema completo que empodera a los profesionales de la salud.
+              </p>
+              <p className="text-base text-gray-700 font-poppins leading-relaxed">
+                Con presencia en más de 15 países y una comunidad de más de 10,000 profesionales de la salud, continuamos innovando para hacer que la medicina sea más accesible, eficiente y efectiva.
+              </p>
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-lg">
+              <img
+                src="/images/doctor.jpg"
+                alt="Doctor escribiendo"
+                className="w-full h-96 object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Mission & Vision */}
+          <div className="grid md:grid-cols-2 gap-8 mb-20">
+            <div className="bg-gradient-to-br from-[#d58b88]/10 to-[#d79c9c]/10 rounded-2xl p-8 border border-[#d58b88]/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-[#d58b88] rounded-lg flex items-center justify-center">
+                  <Heart className="text-white" size={24} />
+                </div>
+                <h3 className="text-2xl text-[#d58b88] font-fredoka-one font-semibold">Misión</h3>
+              </div>
+              <p className="text-gray-700 font-poppins leading-relaxed">
+                Democratizar el acceso a la atención médica de calidad mediante tecnología innovadora, conectando profesionales de la salud con herramientas avanzadas que mejoran los resultados clínicos.
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-[#d58b88]/10 to-[#d79c9c]/10 rounded-2xl p-8 border border-[#d58b88]/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-[#d58b88] rounded-lg flex items-center justify-center">
+                  <Globe className="text-white" size={24} />
+                </div>
+                <h3 className="text-2xl text-[#d58b88] font-fredoka-one font-semibold">Visión</h3>
+              </div>
+              <p className="text-gray-700 font-poppins leading-relaxed">
+                Ser la plataforma líder mundial en salud digital, transformando la medicina a través de la inteligencia artificial, creando un futuro donde la atención médica de excelencia sea accesible para todos.
+              </p>
+            </div>
+          </div>
+
+          {/* Values */}
+          <div>
+            <h3 className="text-3xl text-[#d58b88] text-center mb-12 font-fredoka-one font-bold">
+              Nuestros Valores
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="rounded-2xl bg-white border border-[#d58b88]/20 p-6 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Heart className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Compromiso</h4>
+                <p className="text-sm text-gray-600">Dedicados a mejorar la calidad de vida a través de la innovación médica.</p>
+              </div>
+
+              <div className="rounded-2xl bg-white border border-[#d58b88]/20 p-6 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Lightbulb className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Innovación</h4>
+                <p className="text-sm text-gray-600">Desarrollamos soluciones tecnológicas avanzadas para desafíos médicos actuales.</p>
+              </div>
+
+              <div className="rounded-2xl bg-white border border-[#d58b88]/20 p-6 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Seguridad</h4>
+                <p className="text-sm text-gray-600">Protegemos la información médica con los más altos estándares de seguridad.</p>
+              </div>
+
+              <div className="rounded-2xl bg-white border border-[#d58b88]/20 p-6 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Colaboración</h4>
+                <p className="text-sm text-gray-600">Fomentamos el trabajo en equipo entre profesionales de la salud.</p>
+              </div>
+
+              <div className="rounded-2xl bg-white border border-[#d58b88]/20 p-6 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Globe className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Accesibilidad</h4>
+                <p className="text-sm text-gray-600">Hacemos que la atención médica de calidad sea accesible en todo el mundo.</p>
+              </div>
+
+              <div className="rounded-2xl bg-white border border-[#d58b88]/20 p-6 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Zap className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Eficiencia</h4>
+                <p className="text-sm text-gray-600">Optimizamos los procesos médicos para brindar atención más efectiva.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Section */}
+          <div className="mt-24 pt-12 border-t border-gray-200">
+            <h3 className="text-3xl text-[#d58b88] text-center mb-4 font-fredoka-one font-bold">
+              Nuestro Equipo
+            </h3>
+            <p className="text-center text-gray-600 mb-12 font-poppins">
+              Profesionales excepcionales comprometidos con la innovación médica.
+            </p>
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="rounded-2xl bg-gradient-to-br from-[#d58b88]/5 to-[#d79c9c]/5 border border-[#d58b88]/20 p-6 hover:shadow-lg transition text-center">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <User className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Juan Pérez</h4>
+                <p className="text-sm text-gray-600">Especialista en telemedicina con más de 10 años de experiencia.</p>
+              </div>
+
+              <div className="rounded-2xl bg-gradient-to-br from-[#d58b88]/5 to-[#d79c9c]/5 border border-[#d58b88]/20 p-6 hover:shadow-lg transition text-center">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <User className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">María López</h4>
+                <p className="text-sm text-gray-600">Experta en inteligencia artificial aplicada a la salud.</p>
+              </div>
+
+              <div className="rounded-2xl bg-gradient-to-br from-[#d58b88]/5 to-[#d79c9c]/5 border border-[#d58b88]/20 p-6 hover:shadow-lg transition text-center">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <User className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Carlos García</h4>
+                <p className="text-sm text-gray-600">Ingeniero de software con enfoque en soluciones médicas.</p>
+              </div>
+
+              <div className="rounded-2xl bg-gradient-to-br from-[#d58b88]/5 to-[#d79c9c]/5 border border-[#d58b88]/20 p-6 hover:shadow-lg transition text-center">
+                <div className="w-12 h-12 bg-[#d58b88]/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                  <User className="text-[#d58b88]" size={24} />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Dr. Roberto Silva</h4>
+                <p className="text-sm text-gray-600">Médico cirujano con experiencia en transformación digital.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline Section */}
+          <div className="mt-24 pt-12 border-t border-gray-200">
+            <h3 className="text-3xl text-[#d58b88] text-center mb-4 font-fredoka-one font-bold">
+              Nuestra Historia
+            </h3>
+            <p className="text-center text-gray-600 mb-12 font-poppins">
+              Un recorrido de innovación y crecimiento en el sector de la salud digital.
+            </p>
+            
+            <div className="relative max-w-3xl mx-auto">
+              {/* Timeline line */}
+              <div className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#d58b88]/30"></div>
+
+              {/* 2020 */}
+              <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-center">
+                <span className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d58b88] ring-8 ring-white z-10"></span>
+                <div className="md:text-right md:pr-8">
+                  <p className="text-[#d58b88] font-bold text-lg">2020</p>
+                  <h4 className="text-xl font-semibold text-gray-900">Fundación de HubROMI</h4>
+                  <p className="text-gray-600 text-sm mt-2">Inicio de la plataforma con enfoque en telemedicina.</p>
+                </div>
+              </div>
+
+              {/* 2021 */}
+              <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-center">
+                <span className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d58b88] ring-8 ring-white z-10"></span>
+                <div className="md:col-start-2 md:pl-8">
+                  <p className="text-[#d58b88] font-bold text-lg">2021</p>
+                  <h4 className="text-xl font-semibold text-gray-900">Lanzamiento de ROMI</h4>
+                  <p className="text-gray-600 text-sm mt-2">Primer asistente médico con IA en español.</p>
+                </div>
+              </div>
+
+              {/* 2022 */}
+              <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-center">
+                <span className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d58b88] ring-8 ring-white z-10"></span>
+                <div className="md:text-right md:pr-8">
+                  <p className="text-[#d58b88] font-bold text-lg">2022</p>
+                  <h4 className="text-xl font-semibold text-gray-900">10,000 Profesionales</h4>
+                  <p className="text-gray-600 text-sm mt-2">Alcanzamos 10,000 médicos registrados.</p>
+                </div>
+              </div>
+
+              {/* 2023 */}
+              <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-center">
+                <span className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d58b88] ring-8 ring-white z-10"></span>
+                <div className="md:col-start-2 md:pl-8">
+                  <p className="text-[#d58b88] font-bold text-lg">2023</p>
+                  <h4 className="text-xl font-semibold text-gray-900">Expansión Internacional</h4>
+                  <p className="text-gray-600 text-sm mt-2">Presencia en 15 países de Latinoamérica.</p>
+                </div>
+              </div>
+
+              {/* 2024 */}
+              <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <span className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d58b88] ring-8 ring-white z-10"></span>
+                <div className="md:text-right md:pr-8">
+                  <p className="text-[#d58b88] font-bold text-lg">2024</p>
+                  <h4 className="text-xl font-semibold text-gray-900">Portal Premium</h4>
+                  <p className="text-gray-600 text-sm mt-2">Lanzamiento de servicios especializados.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
       </section>
     </main>
   );

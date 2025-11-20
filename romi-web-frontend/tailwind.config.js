@@ -7,6 +7,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        "fredoka-one": ["Fredoka", "var(--font-fredoka-one)", "cursive"],
+        poppins: ["Poppins", "var(--font-poppins)", "sans-serif"],
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
