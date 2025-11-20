@@ -15,7 +15,7 @@ export default function PatientAppointmentsListPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const get = async (status: string) => apiFetchAuth<{ items?: Item[] }>(`${endpoints.appointments.byPatientMe}?status=${status}`, { method: 'GET' });
+      const get = async (status: string) => apiFetchAuth<{ items?: Item[] }>(`${endpoints.appointments.byPatient}?status=${status}`, { method: 'GET' });
       const [p, a] = await Promise.all([get('PENDING'), get('ACCEPTED')]);
       setPending(p.items ?? []);
       setAccepted(a.items ?? []);
