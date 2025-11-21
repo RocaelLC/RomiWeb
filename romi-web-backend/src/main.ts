@@ -6,10 +6,8 @@ import { WsAdapter } from '@nestjs/platform-ws';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Adaptador de WebSockets para usar "ws"
   app.useWebSocketAdapter(new WsAdapter(app));
 
-  // CORS normal para el REST API
   app.enableCors({
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
