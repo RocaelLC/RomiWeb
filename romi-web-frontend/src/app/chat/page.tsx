@@ -35,10 +35,19 @@ function ChatPageInner() {
   const realtimeThread = appointmentId ? chatMessages[appointmentId] ?? [] : [];
 
  useEffect(() => {
-    console.log("WS_URL env:", process.env.NEXT_PUBLIC_WS_URL);
-  const base =
-    process.env.NEXT_PUBLIC_WS_URL ??
-    `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/chat`;
+  // Elegimos la URL del WebSocket según dónde estamos
+  let base: string;
+
+  if (typeof window !== "undefined" && window.location.hostname === "romi-web.vercel.app") {
+    // Producción: frontend en Vercel, backend en Render
+    base = "wss://romiweb.onrender.com/chat";
+  } else {
+    // Desarrollo local: frontend en localhost:3000, backend en localhost:3001
+    base =
+      process.env.NEXT_PUBLIC_WS_URL ??
+      `${window.location.protocol === "https:" ? "wss" : "ws"}://localhost:3001/chat`;
+  }
+
   console.log("WS_URL final:", base);
 
   const token = getToken();
@@ -66,6 +75,7 @@ function ChatPageInner() {
 
   return () => ws.close();
 }, []);
+
 
 
   const send = () => {
