@@ -35,9 +35,11 @@ function ChatPageInner() {
   const realtimeThread = appointmentId ? chatMessages[appointmentId] ?? [] : [];
 
  useEffect(() => {
+    console.log("WS_URL env:", process.env.NEXT_PUBLIC_WS_URL);
   const base =
     process.env.NEXT_PUBLIC_WS_URL ??
     `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/chat`;
+  console.log("WS_URL final:", base);
 
   const token = getToken();
   const url = new URL(base);
