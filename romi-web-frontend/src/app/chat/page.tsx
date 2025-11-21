@@ -34,34 +34,37 @@ function ChatPageInner() {
   });
   const realtimeThread = appointmentId ? chatMessages[appointmentId] ?? [] : [];
 
-  useEffect(() => {
-    const base =
-      process.env.NEXT_PUBLIC_WS_URL ??
-      `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/chat`;
+ useEffect(() => {
+  const base =
+    process.env.NEXT_PUBLIC_WS_URL ??
+    `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/chat`;
 
-    const token = getToken();
-    const url = new URL(base);
-    if (token) url.searchParams.set("token", token);
+  const token = getToken();
+  const url = new URL(base);
+  if (token) url.searchParams.set("token", token);
 
-    const ws = new WebSocket(url.toString());
-    wsRef.current = ws;
+  const ws = new WebSocket(url.toString());
+  wsRef.current = ws;
 
-    ws.onopen = () => console.log("WS connected");
-    ws.onclose = (e) => console.log("WS closed", e.code, e.reason);
-    ws.onerror = (e) => console.log("WS error", e);
-    ws.onmessage = (ev) => {
-      try {
-        const payload = JSON.parse(ev.data);
-        if (payload.type === "bot_message") {
-          setMessages((p) => [...p, { from: "bot", text: payload.text }]);
-        } else if (payload.type === "typing") {
-          setTyping(!!payload.on);
-        }
-      } catch {}
-    };
+  ws.onopen = () => console.log("WS connected:", url.toString());
+  ws.onclose = (e) => console.log("WS closed", e.code, e.reason);
+  ws.onerror = (e) => console.log("WS error", e);
+  ws.onmessage = (ev) => {
+    try {
+      const payload = JSON.parse(ev.data);
+      if (payload.type === "bot_message") {
+        setMessages((p) => [...p, { from: "bot", text: payload.text }]);
+      } else if (payload.type === "typing") {
+        setTyping(!!payload.on);
+      }
+    } catch (err) {
+      console.error("WS parse error", err);
+    }
+  };
 
-    return () => ws.close();
-  }, []);
+  return () => ws.close();
+}, []);
+
 
   const send = () => {
     const text = input.trim();
