@@ -306,33 +306,3 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
   return { localStream, remoteStream, events, sendAlert, sendDetails, error };
 }
-      console.log("[RTC] Limpieza de llamada (unmount)");
-      hardCleanup();
-    };
-  }, [appointmentId, role, iceServers]);
-
-  const sendAlert = (level: "info" | "warn" | "critical", text: string) => {
-    wsRef.current?.send(
-      JSON.stringify({
-        type: "alert",
-        level,
-        text,
-      })
-    );
-  };
-
-  const sendDetails = (
-    diagnosis: string,
-    prescription: string[],
-    followUp: string
-  ) => {
-    const payload = { type: "details", diagnosis, prescription, followUp };
-    const dc = dcRef.current;
-    if (dc && dc.readyState === "open") {
-      dc.send(JSON.stringify(payload));
-    }
-    wsRef.current?.send(JSON.stringify(payload));
-  };
-
-  return { localStream, remoteStream, events, sendAlert, sendDetails, error };
-}
