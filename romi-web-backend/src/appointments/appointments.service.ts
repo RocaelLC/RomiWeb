@@ -5,7 +5,12 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EventsService } from '../events/events.service';
 import { EventKind, NotificationType } from '../common/enums';
-import { BadRequestException, ForbiddenException, NotFoundException, Injectable } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 @Injectable()
 export class AppointmentsService {
@@ -131,6 +136,23 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException('Appointment not found');
     return appt;
   }
+  async findOneForUser(id: string, userId: string, role: string) {
+  const appt = await this.repo.findOne({ where: { id } });
+
+  if (!appt) {
+    throw new NotFoundException('Appointment not found');
+  }
+
+  const isDoctor = role === 'DOCTOR' && appt.doctorId === userId;
+  const isPatient = role === 'PATIENT' && appt.patientId === userId;
+
+  if (!isDoctor && !isPatient) {
+    throw new ForbiddenException('Insufficient role');
+  }
+
+  return appt;
+}
+
 
   async updateStatus(id: string, actorUserId: string, status: AppointmentStatus) {
     const appt = await this.findOne(id);

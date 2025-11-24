@@ -1,4 +1,18 @@
-﻿import { AppointmentsService } from './appointments.service';
+﻿import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+  Delete,
+} from '@nestjs/common';
+import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentStatusDto } from './dto/update-status.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -6,7 +20,6 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { AddNoteDto } from './dto/add-note.dto';
 import { DoctorHistoryQueryDto } from './dto/doctor-history.dto';
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards, UsePipes, ValidationPipe, Delete } from '@nestjs/common';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
@@ -20,6 +33,7 @@ export class AppointmentsController {
     const patientId = req.user.sub;
     return this.service.create(patientId, dto);
   }
+
   @Delete(':id')
   @Roles('PATIENT')
   removeAsPatient(@Param('id') id: string, @Req() req: any) {
@@ -68,15 +82,22 @@ export class AppointmentsController {
     });
   }
 
+  
   @Get(':id')
-  @Roles('DOCTOR')
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+  @Roles('DOCTOR', 'PATIENT')
+  findOne(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.sub;
+    const role = req.user.role; // 'DOCTOR' o 'PATIENT'
+    return this.service.findOneForUser(id, userId, role);
   }
 
   @Patch(':id/status')
   @Roles('DOCTOR')
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateAppointmentStatusDto, @Req() req: any) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateAppointmentStatusDto,
+    @Req() req: any,
+  ) {
     return this.service.updateStatus(id, req.user.sub, dto.status);
   }
 
