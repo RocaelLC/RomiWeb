@@ -60,7 +60,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
     setError(null);
 
-    // 🚫 Si ya hay un PeerConnection creado, NO creamos otro
     if (pcRef.current) {
       console.log("[RTC] Reutilizando PeerConnection existente");
       return;
@@ -96,7 +95,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
           }
         };
 
-        // 🎥 Captura local
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
@@ -111,28 +109,18 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         localStreamRef.current = stream;
         setLocalStream(stream);
 
-        // 🔌 WebSocket de señalización
-        let base: string;
-        if (
-          typeof window !== "undefined" &&
-          window.location.hostname === "romi-web.vercel.app"
-        ) {
-          base = "wss://romiweb.onrender.com/call";
-        } else {
-          const proto =
-            typeof window !== "undefined" &&
-            window.location.protocol === "https:"
-              ? "wss"
-              : "ws";
-          base =
-            process.env.NEXT_PUBLIC_WS_URL?.replace("/chat", "/call") ??
-            `${proto}://${window.location.host}/call`;
-        }
+        // 👉 SIEMPRE construir el WS hacia el backend (Render) usando env
+        const baseCall =
+          process.env.NEXT_PUBLIC_WS_CALL_BASE?.replace(/\/$/, "") ||
+          (typeof window !== "undefined"
+            ? `${window.location.protocol === "https:" ? "wss" : "ws"}://localhost:3001`
+            : "ws://localhost:3001");
 
-        console.log("CALL_WS_URL:", base);
+        const wsUrl = `${baseCall}/call`;
+        console.log("CALL_WS_URL:", wsUrl);
 
         const token = getToken();
-        const url = new URL(base);
+        const url = new URL(wsUrl);
         url.searchParams.set("aid", appointmentId);
         url.searchParams.set("role", role);
         if (token) url.searchParams.set("token", token);
