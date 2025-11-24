@@ -61,7 +61,7 @@ export default function PatientAppointmentPage() {
       setError(null);
       try {
         const raw = await apiFetchAuth<any>(
-          endpoints.appointments.detail(id),
+          endpoints.appointments.byId(id),
           { method: "GET" }
         );
 
