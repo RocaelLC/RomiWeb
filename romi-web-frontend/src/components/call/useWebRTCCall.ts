@@ -52,7 +52,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
   const push = (t: string) => setEvents((p) => [...p, t]);
 
-  // 🔧 función de limpieza fuerte, la usamos antes y después
   const hardCleanup = () => {
     try {
       if (wsRef.current) {
@@ -98,8 +97,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
     }
 
     setError(null);
-
-    // 🔧 Antes de crear nada nuevo, barremos todo lo anterior
     hardCleanup();
 
     let cancelled = false;
@@ -108,7 +105,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
       try {
         console.log("[RTC] Iniciando llamada para", appointmentId, "como", role);
 
-        // Si por alguna razón ya había un PC, no creamos otro
         if (pcRef.current) {
           console.log("[RTC] PeerConnection ya existe, no se crea otro");
           return;
@@ -154,22 +150,31 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         localStreamRef.current = stream;
         setLocalStream(stream);
 
-        // 🔌 URL del WS de señalización
+        // 🔌 URL del WS de señalización (ARREGLADO)
         let base: string;
-        if (
-          typeof window !== "undefined" &&
-          window.location.hostname === "romi-web.vercel.app"
-        ) {
-          base = "wss://romiweb.onrender.com/call";
+
+        // 1) Si algún día defines NEXT_PUBLIC_CALL_WS_URL, manda todo ahí.
+        if (process.env.NEXT_PUBLIC_CALL_WS_URL) {
+          base = process.env.NEXT_PUBLIC_CALL_WS_URL;
+        } else if (typeof window !== "undefined") {
+          const host = window.location.hostname;
+          console.log("[RTC] hostname:", host);
+
+          // 2) Cualquier dominio de Vercel -> backend en Render
+          if (host.endsWith(".vercel.app")) {
+            base = "wss://romiweb.onrender.com/call";
+          } else {
+            // 3) Local / otros entornos
+            const proto = window.location.protocol === "https:" ? "wss" : "ws";
+            base =
+              process.env.NEXT_PUBLIC_WS_URL?.replace("/chat", "/call") ??
+              `${proto}://${window.location.host}/call`;
+          }
         } else {
-          const proto =
-            typeof window !== "undefined" &&
-            window.location.protocol === "https:"
-              ? "wss"
-              : "ws";
+          // SSR fallback (realmente casi no se usa aquí)
           base =
             process.env.NEXT_PUBLIC_WS_URL?.replace("/chat", "/call") ??
-            `${proto}://${window.location.host}/call`;
+            "ws://localhost:3001/call";
         }
 
         console.log("CALL_WS_URL:", base);
@@ -271,6 +276,36 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
     return () => {
       cancelled = true;
+      console.log("[RTC] Limpieza de llamada (unmount)");
+      hardCleanup();
+    };
+  }, [appointmentId, role, iceServers]);
+
+  const sendAlert = (level: "info" | "warn" | "critical", text: string) => {
+    wsRef.current?.send(
+      JSON.stringify({
+        type: "alert",
+        level,
+        text,
+      })
+    );
+  };
+
+  const sendDetails = (
+    diagnosis: string,
+    prescription: string[],
+    followUp: string
+  ) => {
+    const payload = { type: "details", diagnosis, prescription, followUp };
+    const dc = dcRef.current;
+    if (dc && dc.readyState === "open") {
+      dc.send(JSON.stringify(payload));
+    }
+    wsRef.current?.send(JSON.stringify(payload));
+  };
+
+  return { localStream, remoteStream, events, sendAlert, sendDetails, error };
+}
       console.log("[RTC] Limpieza de llamada (unmount)");
       hardCleanup();
     };
