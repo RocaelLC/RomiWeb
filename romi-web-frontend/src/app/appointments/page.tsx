@@ -120,7 +120,7 @@ export default function PatientAppointmentsPage() {
     return (
       <main className="max-w-5xl mx-auto p-6 space-y-4">
         <p className="text-sm text-red-600">
-          OcurriÃ³ un error al cargar tus citas: {error}
+          Ocurrió un error al cargar tus citas: {error}
         </p>
         <button
           onClick={fetchData}
@@ -137,7 +137,7 @@ export default function PatientAppointmentsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Mis citas</h1>
           <p className="text-sm text-muted-foreground">
-            Revisa tus proximas consultas, historial y gestiona tus citas.
+            Revisa tus próximas consultas, historial y gestiona tus citas.
           </p>
         </div>
         <button
@@ -155,7 +155,7 @@ export default function PatientAppointmentsPage() {
             <CalendarDays className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Proximas</div>
+            <div className="text-xs text-muted-foreground">Próximas</div>
             <div className="text-2xl font-semibold">{stats.proximas}</div>
           </div>
         </div>
@@ -183,11 +183,12 @@ export default function PatientAppointmentsPage() {
         <section className="rounded-2xl border bg-card p-4 flex flex-col sm:flex-row justify-between gap-3">
           <div>
             <h2 className="text-sm font-medium text-muted-foreground mb-1">
-              Proxima cita            </h2>
+              Próxima cita
+            </h2>
             <p className="text-base font-semibold">
               {nextAppointment.doctor?.name ||
                 nextAppointment.doctor?.email ||
-                "MÃ©dico asignado"}
+                "Médico asignado"}
             </p>
             <p className="text-sm text-muted-foreground">
               {new Date(nextAppointment.scheduledAt).toLocaleString()}
@@ -201,20 +202,22 @@ export default function PatientAppointmentsPage() {
           <div className="flex items-end gap-2 justify-end">
             <button
               className="px-3 py-1.5 rounded border text-xs"
-              onClick={() => router.push(`/appointments/${nextAppointment.id}`)}
+              onClick={() =>
+                router.push(`/patient/appointments/${nextAppointment.id}`)
+              }
             >
               Ver detalles
             </button>
             {(nextAppointment.status === "PENDING" ||
               nextAppointment.status === "CANCELLED") && (
-                <button
-                  onClick={() => deleteAppointment(nextAppointment.id)}
-                  className="inline-flex items-center justify-center px-3 py-1.5 rounded border text-xs text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Eliminar
-                </button>
-              )}
+              <button
+                onClick={() => deleteAppointment(nextAppointment.id)}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded border text-xs text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Eliminar
+              </button>
+            )}
           </div>
         </section>
       )}
@@ -222,9 +225,9 @@ export default function PatientAppointmentsPage() {
       {!!upcoming.length && (
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">Proximas citas</h2>
+            <h2 className="text-lg font-medium">Próximas citas</h2>
             <span className="text-xs text-muted-foreground">
-              {upcoming.length} en los siguientes dÃ­as
+              {upcoming.length} en los siguientes días
             </span>
           </div>
           <div className="grid gap-3">
@@ -237,7 +240,7 @@ export default function PatientAppointmentsPage() {
                   <p className="text-sm font-medium">
                     {ap.doctor?.name ||
                       ap.doctor?.email ||
-                      "MÃ©dico asignado"}
+                      "Médico asignado"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(ap.scheduledAt).toLocaleString()}
@@ -251,24 +254,26 @@ export default function PatientAppointmentsPage() {
                 <div className="flex items-center gap-2 self-end sm:self-auto">
                   <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
                     {ap.status === "PENDING"
-                      ? "Pendiente de confirmaciÃ³n"
+                      ? "Pendiente de confirmación"
                       : "Confirmada"}
                   </span>
                   <button
-                    onClick={() => router.push(`/appointments/${ap.id}`)}
+                    onClick={() =>
+                      router.push(`/patient/appointments/${ap.id}`)
+                    }
                     className="px-3 py-1 rounded border text-xs"
                   >
                     Detalles
                   </button>
                   {(ap.status === "PENDING" ||
                     ap.status === "CANCELLED") && (
-                      <button
-                        onClick={() => deleteAppointment(ap.id)}
-                        className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => deleteAppointment(ap.id)}
+                      className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -281,7 +286,7 @@ export default function PatientAppointmentsPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Historial reciente</h2>
             <span className="text-xs text-muted-foreground">
-              Mostrando Ultimas {Math.min(past.length, 5)} citas
+              Mostrando últimas {Math.min(past.length, 5)} citas
             </span>
           </div>
           <div className="grid gap-3">
@@ -292,7 +297,7 @@ export default function PatientAppointmentsPage() {
               >
                 <div>
                   <p className="text-sm font-medium">
-                    {ap.doctor?.name || ap.doctor?.email || "MÃ©dico"}
+                    {ap.doctor?.name || ap.doctor?.email || "Médico"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(ap.scheduledAt).toLocaleString()}
@@ -300,15 +305,18 @@ export default function PatientAppointmentsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full ${ap.status === "ATTENDED"
+                    className={`text-[11px] px-2 py-0.5 rounded-full ${
+                      ap.status === "ATTENDED"
                         ? "bg-emerald-50 text-emerald-700"
                         : "bg-slate-50 text-slate-700"
-                      }`}
+                    }`}
                   >
                     {ap.status}
                   </span>
                   <button
-                    onClick={() => router.push(`/appointments/${ap.id}`)}
+                    onClick={() =>
+                      router.push(`/patient/appointments/${ap.id}`)
+                    }
                     className="px-3 py-1 rounded border text-xs"
                   >
                     Ver
@@ -322,7 +330,7 @@ export default function PatientAppointmentsPage() {
 
       {!!items.length && (
         <section className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify_between">
             <h2 className="text-lg font-medium">Todas mis citas</h2>
             <button
               onClick={fetchData}
@@ -335,7 +343,7 @@ export default function PatientAppointmentsPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="text-left p-3">MÃ©dico</th>
+                  <th className="text-left p-3">Médico</th>
                   <th className="text-left p-3">Fecha / Hora</th>
                   <th className="text-left p-3">Motivo</th>
                   <th className="text-left p-3">Estatus</th>
@@ -348,17 +356,17 @@ export default function PatientAppointmentsPage() {
                     <td className="p-3">
                       {ap.doctor?.name ||
                         ap.doctor?.email ||
-                        "MÃ©dico asignado"}
+                        "Médico asignado"}
                     </td>
                     <td className="p-3">
                       {new Date(ap.scheduledAt).toLocaleString()}
                     </td>
-                    <td className="p-3">{ap.reason || "â€”"}</td>
+                    <td className="p-3">{ap.reason || "—"}</td>
                     <td className="p-3 text-xs">{ap.status}</td>
                     <td className="p-3 text-right space-x-2">
                       <button
                         onClick={() =>
-                          router.push(`/appointments/${ap.id}`)
+                          router.push(`/patient/appointments/${ap.id}`)
                         }
                         className="px-3 py-1 rounded border text-xs"
                       >
@@ -366,14 +374,14 @@ export default function PatientAppointmentsPage() {
                       </button>
                       {(ap.status === "PENDING" ||
                         ap.status === "CANCELLED") && (
-                          <button
-                            onClick={() => deleteAppointment(ap.id)}
-                            className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
-                            title="Eliminar cita"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => deleteAppointment(ap.id)}
+                          className="inline-flex items-center justify-center px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
+                          title="Eliminar cita"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -395,4 +403,3 @@ export default function PatientAppointmentsPage() {
     </main>
   );
 }
-
