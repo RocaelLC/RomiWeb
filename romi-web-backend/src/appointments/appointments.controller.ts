@@ -83,13 +83,13 @@ export class AppointmentsController {
   }
 
   
-  @Get(':id')
-  @Roles('DOCTOR', 'PATIENT')
-  findOne(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.sub;
-    const role = req.user.role; // 'DOCTOR' o 'PATIENT'
-    return this.service.findOneForUser(id, userId);
-  }
+@Get(':id')
+@Roles('DOCTOR', 'PATIENT')
+findOne(@Param('id') id: string, @Req() req: any) {
+  const userId = req.user.sub; 
+  return this.service.findOneForUser(id, userId);
+}
+
 
   @Patch(':id/status')
   @Roles('DOCTOR')

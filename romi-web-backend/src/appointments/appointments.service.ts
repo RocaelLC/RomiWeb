@@ -130,23 +130,23 @@ export class AppointmentsService {
 
     return { items, total, page: params.page, size: params.size };
   }
-
   async findOne(id: string) {
     const appt = await this.repo.findOne({ where: { id } });
     if (!appt) throw new NotFoundException('Appointment not found');
     return appt;
   }
-  async findOneForUser(id: string, userId: string, role: string) {
+
+ async findOneForUser(id: string, userId: string) {
   const appt = await this.repo.findOne({ where: { id } });
 
   if (!appt) {
     throw new NotFoundException('Appointment not found');
   }
 
-  const isDoctor = role === 'DOCTOR' && appt.doctorId === userId;
-  const isPatient = role === 'PATIENT' && appt.patientId === userId;
+  const isOwner =
+    appt.patientId === userId || appt.doctorId === userId;
 
-  if (!isDoctor && !isPatient) {
+  if (!isOwner) {
     throw new ForbiddenException('Insufficient role');
   }
 
