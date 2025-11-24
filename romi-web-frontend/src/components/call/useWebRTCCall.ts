@@ -52,6 +52,45 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
   const push = (t: string) => setEvents((p) => [...p, t]);
 
+  // 🔧 función de limpieza fuerte, la usamos antes y después
+  const hardCleanup = () => {
+    try {
+      if (wsRef.current) {
+        wsRef.current.onopen = null;
+        wsRef.current.onclose = null;
+        wsRef.current.onmessage = null;
+        wsRef.current.onerror = null;
+        try {
+          wsRef.current.close();
+        } catch {}
+      }
+    } catch {}
+    wsRef.current = null;
+
+    try {
+      if (pcRef.current) {
+        pcRef.current.getSenders().forEach((s) => s.track?.stop());
+        pcRef.current.onicecandidate = null;
+        pcRef.current.ontrack = null;
+        pcRef.current.onconnectionstatechange = null;
+        try {
+          pcRef.current.close();
+        } catch {}
+      }
+    } catch {}
+    pcRef.current = null;
+
+    try {
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+    } catch {}
+    localStreamRef.current = null;
+
+    setLocalStream(null);
+    setRemoteStream(null);
+  };
+
   useEffect(() => {
     if (!appointmentId) {
       setError("No se encontró el ID de la cita.");
@@ -60,10 +99,8 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
     setError(null);
 
-    if (pcRef.current) {
-      console.log("[RTC] Reutilizando PeerConnection existente");
-      return;
-    }
+    // 🔧 Antes de crear nada nuevo, barremos todo lo anterior
+    hardCleanup();
 
     let cancelled = false;
 
@@ -71,12 +108,20 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
       try {
         console.log("[RTC] Iniciando llamada para", appointmentId, "como", role);
 
+        // Si por alguna razón ya había un PC, no creamos otro
+        if (pcRef.current) {
+          console.log("[RTC] PeerConnection ya existe, no se crea otro");
+          return;
+        }
+
         const pc = new RTCPeerConnection(iceServers);
         pcRef.current = pc;
 
         pc.onicecandidate = (e) => {
-          if (e.candidate) {
-            sendWs({ type: "ice-candidate", candidate: e.candidate });
+          if (e.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(
+              JSON.stringify({ type: "ice-candidate", candidate: e.candidate })
+            );
           }
         };
 
@@ -109,18 +154,28 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         localStreamRef.current = stream;
         setLocalStream(stream);
 
-        // 👉 SIEMPRE construir el WS hacia el backend (Render) usando env
-        const baseCall =
-          process.env.NEXT_PUBLIC_WS_CALL_BASE?.replace(/\/$/, "") ||
-          (typeof window !== "undefined"
-            ? `${window.location.protocol === "https:" ? "wss" : "ws"}://localhost:3001`
-            : "ws://localhost:3001");
+        // 🔌 URL del WS de señalización
+        let base: string;
+        if (
+          typeof window !== "undefined" &&
+          window.location.hostname === "romi-web.vercel.app"
+        ) {
+          base = "wss://romiweb.onrender.com/call";
+        } else {
+          const proto =
+            typeof window !== "undefined" &&
+            window.location.protocol === "https:"
+              ? "wss"
+              : "ws";
+          base =
+            process.env.NEXT_PUBLIC_WS_URL?.replace("/chat", "/call") ??
+            `${proto}://${window.location.host}/call`;
+        }
 
-        const wsUrl = `${baseCall}/call`;
-        console.log("CALL_WS_URL:", wsUrl);
+        console.log("CALL_WS_URL:", base);
 
         const token = getToken();
-        const url = new URL(wsUrl);
+        const url = new URL(base);
         url.searchParams.set("aid", appointmentId);
         url.searchParams.set("role", role);
         if (token) url.searchParams.set("token", token);
@@ -131,7 +186,12 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         if (role === "doctor") {
           const dc = pc.createDataChannel("data");
           dcRef.current = dc;
-          attachDataChannel(dc);
+          dc.onmessage = (e) => {
+            try {
+              const m = JSON.parse(e.data);
+              if (m?.type) push(`DC: ${m.type}`);
+            } catch {}
+          };
         }
 
         ws.onopen = async () => {
@@ -142,7 +202,7 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
             if (pc.signalingState === "closed") return;
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
-            sendWs({ type: "sdp-offer", sdp: offer });
+            ws.send(JSON.stringify({ type: "sdp-offer", sdp: offer }));
           }
         };
 
@@ -174,7 +234,7 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
             await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
-            sendWs({ type: "sdp-answer", sdp: answer });
+            ws.send(JSON.stringify({ type: "sdp-answer", sdp: answer }));
           }
 
           if (msg.type === "sdp-answer") {
@@ -198,21 +258,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
             push(`Detalles: ${msg.diagnosis}`);
           }
         };
-
-        function sendWs(data: any) {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify(data));
-          }
-        }
-
-        function attachDataChannel(dc: RTCDataChannel) {
-          dc.onmessage = (e) => {
-            try {
-              const m = JSON.parse(e.data);
-              if (m?.type) push(`DC: ${m.type}`);
-            } catch {}
-          };
-        }
       } catch (err: any) {
         console.error("Error iniciando WebRTC:", err);
         setError(
@@ -226,23 +271,8 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
     return () => {
       cancelled = true;
-      console.log("[RTC] Limpieza de llamada");
-
-      try {
-        wsRef.current?.close();
-      } catch {}
-      wsRef.current = null;
-
-      try {
-        pcRef.current?.getSenders().forEach((s) => s.track?.stop());
-        pcRef.current?.close();
-      } catch {}
-      pcRef.current = null;
-
-      try {
-        localStreamRef.current?.getTracks().forEach((t) => t.stop());
-      } catch {}
-      localStreamRef.current = null;
+      console.log("[RTC] Limpieza de llamada (unmount)");
+      hardCleanup();
     };
   }, [appointmentId, role, iceServers]);
 
