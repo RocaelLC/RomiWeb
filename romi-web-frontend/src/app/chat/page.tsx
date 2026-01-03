@@ -35,7 +35,6 @@ function ChatPageInner() {
   const realtimeThread = appointmentId ? chatMessages[appointmentId] ?? [] : [];
 
  useEffect(() => {
-  // Elegimos la URL del WebSocket según dónde estamos
   let base: string;
 
   if (typeof window !== "undefined" && window.location.hostname === "romi-web.vercel.app") {

@@ -187,7 +187,7 @@ export default function DashboardPage() {
               appt={toCard(a)}
               onAccept={() => onAccept(a.id)}
               onReject={() => onReject(a.id)}
-              onOpen={() => { }}
+              onOpen={() => router.push(`/doctor/appointments/${a.id}`)}
               onStart={() => { }}
             />
           ))}
@@ -201,7 +201,7 @@ export default function DashboardPage() {
             <AppointmentCard
               key={a.id}
               appt={toCardAccepted(a)}
-              onOpen={() => { }}
+              onOpen={() => router.push(`/doctor/appointments/${a.id}`)}
               onStart={() => router.push(`/doctor/appointments/${a.id}/call`)}
             />
           ))}

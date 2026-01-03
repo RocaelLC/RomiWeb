@@ -1,37 +1,21 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../users/user.entity';
+import { User } from './user.entity';
 
-@Entity('doctor_profile')
-export class DoctorProfile {
+@Entity('patient_profile')
+export class PatientProfile {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
-  @Column({ length: 120 })
-  specialty: string;
-
-  @Column({ length: 120, nullable: true })
-  city?: string | null;
-
-  // Si no usas Postgres, guarda como string CSV y luego lo parseas
-  @Column({ type: 'simple-array', nullable: true })
-  languages?: string[] | null; // ej: "Español,Inglés"
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  price?: number | null;
-
-  @Column({ type: 'float', nullable: true })
-  rating?: number | null;
-
-  @Column({ type: 'int', nullable: true })
-  yearsExp?: number | null;
-
-  @Column({ length: 60, nullable: true })
-  nextAvailable?: string | null;
-
-  @Column({ type: 'boolean', default: true })
-  isAvailable?: boolean | null;
-
-  @OneToOne(() => User, (u) => u.doctorProfile, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User;
+
+  @Column({ type: 'jsonb', nullable: true })
+  demographics?: Record<string, any> | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  emergency_contact?: Record<string, any> | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  risk_flags?: Record<string, any> | null;
 }

@@ -11,6 +11,7 @@ import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { CronModule } from './cron/cron.module';
+import { ClinicalNotesModule } from './clinical-notes/clinical-notes.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CronModule } from './cron/cron.module';
     NotificationsModule,
     RealtimeModule,
     CronModule,
+    ClinicalNotesModule,
   ],
 })
 export class AppModule {}

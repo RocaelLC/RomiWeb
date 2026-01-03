@@ -10,8 +10,7 @@ import IntakePreview from "@/components/appointments/IntakePreview";
 import AltSlots from "@/components/appointments/AltSlots";
 import { apiFetchAuth, endpoints } from "@/lib/api";
 import { formatLocal } from "@/lib/time";
-import type { AppointmentStatus } from "@/lib/types"; // 👈 usa el tipo real
-
+import type { AppointmentStatus } from "@/lib/types";
 
 type AppointmentDetail = {
   id: string;
@@ -24,6 +23,14 @@ type AppointmentDetail = {
   altSlots?: string[];
 };
 
+type Note = {
+  id: string;
+  subjective: string;
+  objective?: string | null;
+  assessment?: string | null;
+  plan?: string | null;
+  createdAt: string;
+};
 
 const toast = (msg: string) => {
   alert(msg);
@@ -43,7 +50,6 @@ function normalizeStatus(raw: string): AppointmentStatus {
   return map[upper] ?? ("pending" as AppointmentStatus);
 }
 
-
 export default function PatientAppointmentPage() {
   const params = useParams();
   const id = String(params?.id ?? "");
@@ -52,6 +58,7 @@ export default function PatientAppointmentPage() {
   const [aiSummary, setAiSummary] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -71,7 +78,12 @@ export default function PatientAppointmentPage() {
         };
 
         setAppt(data);
-        // si luego llamas a IA, aquí
+
+        const notesRes = await apiFetchAuth<Note[]>(
+          endpoints.clinicalNotes.byAppointment(id),
+          { method: "GET" }
+        );
+        setNotes(Array.isArray(notesRes) ? notesRes : []);
       } catch (e: any) {
         console.error(e);
         setError(e?.message ?? "Error al cargar la cita");
@@ -174,6 +186,32 @@ export default function PatientAppointmentPage() {
                 Hablar con ROMI IA
               </button>
             </div>
+
+            <section className="border rounded p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium">Notas clínicas</h3>
+                <span className="text-sm text-gray-500">{notes.length} registradas</span>
+              </div>
+              {notes.length === 0 ? (
+                <p className="text-sm text-gray-600">Aún no hay notas.</p>
+              ) : (
+                <div className="space-y-3">
+                  {notes.map((n) => (
+                    <article key={n.id} className="rounded border p-3 space-y-1 bg-slate-50">
+                      <div className="text-xs text-gray-500">
+                        {new Date(n.createdAt).toLocaleString()}
+                      </div>
+                      <div className="text-sm">
+                        <b>Subjetivo: </b>{n.subjective}
+                      </div>
+                      {n.objective && <div className="text-sm"><b>Objetivo: </b>{n.objective}</div>}
+                      {n.assessment && <div className="text-sm"><b>Diagnóstico: </b>{n.assessment}</div>}
+                      {n.plan && <div className="text-sm"><b>Plan: </b>{n.plan}</div>}
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
           </section>
 
           <aside>{aiSummary && <IntakePreview data={aiSummary} />}</aside>
