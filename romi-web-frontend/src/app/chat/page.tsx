@@ -36,16 +36,13 @@ function ChatPageInner() {
   const realtimeThread = appointmentId ? chatMessages[appointmentId] ?? [] : [];
 
   useEffect(() => {
-    // 1) Base HTTP API (prod o local) -> lo controlas con env vars
     const apiBase =
       process.env.NEXT_PUBLIC_API_BASE_URL ||
       process.env.NEXT_PUBLIC_API_URL ||
       "http://localhost:3001";
 
-    // 2) Base WS explícita (opcional) o derivada de la API
     const wsBase = process.env.NEXT_PUBLIC_WS_URL || apiBase.replace(/^http/, "ws");
 
-    // 3) Tu backend WS escucha en path "/chat"
     const url = new URL(`${wsBase}/chat`);
 
     const token = getToken();
