@@ -12,6 +12,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { CronModule } from './cron/cron.module';
 import { ClinicalNotesModule } from './clinical-notes/clinical-notes.module';
+import { HealthModule } from "./health/health.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ClinicalNotesModule } from './clinical-notes/clinical-notes.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
+      
       // Enable SSL only when explicitly requested
       ssl:
         (process.env.DB_SSL ?? 'false').toLowerCase() === 'true'
@@ -45,6 +47,7 @@ import { ClinicalNotesModule } from './clinical-notes/clinical-notes.module';
     RealtimeModule,
     CronModule,
     ClinicalNotesModule,
+     HealthModule,
   ],
 })
 export class AppModule {}
