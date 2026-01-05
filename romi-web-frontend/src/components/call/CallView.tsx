@@ -1,27 +1,62 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
-import { useWebRTCCall } from './useWebRTCCall';
-import { Megaphone, ShieldAlert } from 'lucide-react';
 
-export default function CallView({ appointmentId, role }: { appointmentId: string; role: 'doctor'|'patient' }) {
-  const { localStream, remoteStream, events, sendAlert, sendDetails, error } = useWebRTCCall(appointmentId, role);
+import { useEffect, useRef, useState } from "react";
+import { useWebRTCCall } from "./useWebRTCCall";
+import { Megaphone, ShieldAlert } from "lucide-react";
+import CallLinkPanel from "@/components/video/CallLinkPanel";
+
+export default function CallView({
+  appointmentId,
+  role,
+}: {
+  appointmentId: string;
+  role: "doctor" | "patient";
+}) {
+  const {
+    localStream,
+    remoteStream,
+    events,
+    sendAlert,
+    sendDetails,
+    error,
+
+    // ✅ ahora sí existen:
+    callLink,
+    patientReady,
+    sendCallLink,
+    sendReady,
+  } = useWebRTCCall(appointmentId, role);
+
   const lv = useRef<HTMLVideoElement>(null);
   const rv = useRef<HTMLVideoElement>(null);
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
 
-  useEffect(() => { if (lv.current && localStream) { lv.current.srcObject = localStream; lv.current.muted = true; } }, [localStream]);
-  useEffect(() => { if (rv.current && remoteStream) { rv.current.srcObject = remoteStream; } }, [remoteStream]);
+  useEffect(() => {
+    if (lv.current && localStream) {
+      lv.current.srcObject = localStream;
+      lv.current.muted = true;
+    }
+  }, [localStream]);
+
+  useEffect(() => {
+    if (rv.current && remoteStream) {
+      rv.current.srcObject = remoteStream;
+    }
+  }, [remoteStream]);
 
   const toggleMic = () => {
     if (!localStream) return;
-    const next = !micOn; setMicOn(next);
-    localStream.getAudioTracks().forEach(t => t.enabled = next);
+    const next = !micOn;
+    setMicOn(next);
+    localStream.getAudioTracks().forEach((t) => (t.enabled = next));
   };
+
   const toggleCam = () => {
     if (!localStream) return;
-    const next = !camOn; setCamOn(next);
-    localStream.getVideoTracks().forEach(t => t.enabled = next);
+    const next = !camOn;
+    setCamOn(next);
+    localStream.getVideoTracks().forEach((t) => (t.enabled = next));
   };
 
   return (
@@ -29,8 +64,22 @@ export default function CallView({ appointmentId, role }: { appointmentId: strin
       <header className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Videoconsulta</h1>
         <div className="flex gap-2">
-          <button onClick={toggleMic} className={`px-3 py-2 rounded-lg border ${micOn ? 'bg-emerald-50' : ''}`}>{micOn ? 'Mic ON' : 'Mic OFF'}</button>
-          <button onClick={toggleCam} className={`px-3 py-2 rounded-lg border ${camOn ? 'bg-emerald-50' : ''}`}>{camOn ? 'Cam ON' : 'Cam OFF'}</button>
+          <button
+            onClick={toggleMic}
+            className={`px-3 py-2 rounded-lg border ${
+              micOn ? "bg-emerald-50" : ""
+            }`}
+          >
+            {micOn ? "Mic ON" : "Mic OFF"}
+          </button>
+          <button
+            onClick={toggleCam}
+            className={`px-3 py-2 rounded-lg border ${
+              camOn ? "bg-emerald-50" : ""
+            }`}
+          >
+            {camOn ? "Cam ON" : "Cam OFF"}
+          </button>
         </div>
       </header>
 
@@ -49,15 +98,45 @@ export default function CallView({ appointmentId, role }: { appointmentId: strin
         </div>
       </section>
 
-      {role === 'doctor' && (
+      {/* ✅ PANEL CHAT BLANCO (link + listo) */}
+      <CallLinkPanel
+        role={role}
+        callLink={callLink}
+        patientReady={patientReady}
+        onSendLink={sendCallLink}
+        onReady={sendReady}
+      />
+
+      {/* acciones doctor opcionales */}
+      {role === "doctor" && (
         <section className="flex flex-wrap gap-2">
-          <button onClick={() => sendAlert('info','Estamos por comenzar')} className="px-3 py-2 rounded-lg border inline-flex items-center gap-2"><Megaphone className="w-4 h-4"/>Enviar alerta</button>
-          <button onClick={() => sendDetails('Consulta inicial', ['Paracetamol 500mg c/8h x 3 días'], 'Control en 7 días')} className="px-3 py-2 rounded-lg border inline-flex items-center gap-2"><ShieldAlert className="w-4 h-4"/>Enviar detalles</button>
+          <button
+            onClick={() => sendAlert("info", "Estamos por comenzar")}
+            className="px-3 py-2 rounded-lg border inline-flex items-center gap-2"
+          >
+            <Megaphone className="w-4 h-4" />
+            Enviar alerta
+          </button>
+          <button
+            onClick={() =>
+              sendDetails(
+                "Consulta inicial",
+                ["Paracetamol 500mg c/8h x 3 días"],
+                "Control en 7 días"
+              )
+            }
+            className="px-3 py-2 rounded-lg border inline-flex items-center gap-2"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            Enviar detalles
+          </button>
         </section>
       )}
 
       <section className="rounded-xl border bg-card p-3 max-h-40 overflow-auto text-sm text-muted-foreground">
-        {events.map((e, i) => (<div key={i}>{e}</div>))}
+        {events.map((e, i) => (
+          <div key={i}>{e}</div>
+        ))}
       </section>
     </main>
   );

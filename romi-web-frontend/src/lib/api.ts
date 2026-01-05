@@ -1,9 +1,7 @@
 ﻿import { getToken } from "./auth";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:3001";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export async function apiFetch(path: string, init: RequestInit = {}) {
   const url = `${API_BASE}${path}`;
@@ -80,8 +78,15 @@ export const endpoints = {
     historyByAppointment: (id: string) => `/chat/appointments/${id}`,
   },
   clinicalNotes: {
-    create: '/clinical-notes',
+    create: "/clinical-notes",
     byAppointment: (id: string) => `/clinical-notes/appointment/${id}`,
-    byRecord: (id: string) => `/clinical-notes/record/${id}`,
+    
+    byRecord: (recordId: string) => `/clinical-notes/record/${recordId}`,
   },
-};
+
+  preconsultations: {
+    create: "/preconsultations",
+    byAppointment: (id: string) => `/preconsultations/appointment/${id}`,
+  },
+} as const;
+

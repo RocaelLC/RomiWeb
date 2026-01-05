@@ -11,18 +11,19 @@ type Incoming =
   | { type: "sdp-answer"; sdp: any }
   | { type: "ice-candidate"; candidate: any }
   | { type: "alert"; level: "info" | "warn" | "critical"; text: string }
-  | {
-      type: "details";
-      diagnosis: string;
-      prescription: string[];
-      followUp: string;
-    };
+  | { type: "details"; diagnosis: string; prescription: string[]; followUp: string }
+  | { type: "call_link"; url: string; from?: Role }
+  | { type: "ready"; from?: Role };
 
 export function useWebRTCCall(appointmentId: string, role: Role) {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [events, setEvents] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // 👇 nuevos estados para el panel
+  const [callLink, setCallLink] = useState<string | null>(null);
+  const [patientReady, setPatientReady] = useState(false);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -59,9 +60,7 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         wsRef.current.onclose = null;
         wsRef.current.onmessage = null;
         wsRef.current.onerror = null;
-        try {
-          wsRef.current.close();
-        } catch {}
+        try { wsRef.current.close(); } catch {}
       }
     } catch {}
     wsRef.current = null;
@@ -72,9 +71,7 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         pcRef.current.onicecandidate = null;
         pcRef.current.ontrack = null;
         pcRef.current.onconnectionstatechange = null;
-        try {
-          pcRef.current.close();
-        } catch {}
+        try { pcRef.current.close(); } catch {}
       }
     } catch {}
     pcRef.current = null;
@@ -98,6 +95,10 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
     setError(null);
     hardCleanup();
+
+    // reset panel states
+    setCallLink(null);
+    setPatientReady(false);
 
     let cancelled = false;
 
@@ -130,8 +131,7 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
           console.log("[RTC] connectionState:", state);
           if (state === "failed") {
             setError(
-              "No se pudo establecer la conexión de videollamada. " +
-                "Puedes volver a intentar o continuar la consulta por chat."
+              "No se pudo establecer la conexión de videollamada. Puedes reintentar o continuar por chat."
             );
           }
         };
@@ -150,34 +150,27 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         localStreamRef.current = stream;
         setLocalStream(stream);
 
-        // 🔌 URL del WS de señalización (ARREGLADO)
+        // WS base
         let base: string;
 
-        // 1) Si algún día defines NEXT_PUBLIC_CALL_WS_URL, manda todo ahí.
         if (process.env.NEXT_PUBLIC_CALL_WS_URL) {
           base = process.env.NEXT_PUBLIC_CALL_WS_URL;
         } else if (typeof window !== "undefined") {
           const host = window.location.hostname;
-          console.log("[RTC] hostname:", host);
 
-          // 2) Cualquier dominio de Vercel -> backend en Render
           if (host.endsWith(".vercel.app")) {
             base = "wss://romiweb.onrender.com/call";
           } else {
-            // 3) Local / otros entornos
             const proto = window.location.protocol === "https:" ? "wss" : "ws";
             base =
               process.env.NEXT_PUBLIC_WS_URL?.replace("/chat", "/call") ??
               `${proto}://${window.location.host}/call`;
           }
         } else {
-          // SSR fallback (realmente casi no se usa aquí)
           base =
             process.env.NEXT_PUBLIC_WS_URL?.replace("/chat", "/call") ??
             "ws://localhost:3001/call";
         }
-
-        console.log("CALL_WS_URL:", base);
 
         const token = getToken();
         const url = new URL(base);
@@ -200,7 +193,6 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         }
 
         ws.onopen = async () => {
-          console.log("[RTC] WS conectado:", url.toString());
           push("Conectado a señalización");
 
           if (role === "doctor") {
@@ -216,12 +208,9 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
         };
 
         ws.onclose = (e) => {
-          console.log("[RTC] WS cerrado", e.code, e.reason);
           if (!cancelled && !error) {
             setError(
-              `Conexión cerrada (${e.code})${
-                e.reason ? ": " + e.reason : ""
-              }`
+              `Conexión cerrada (${e.code})${e.reason ? ": " + e.reason : ""}`
             );
           }
         };
@@ -262,12 +251,24 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
           if (msg.type === "details") {
             push(`Detalles: ${msg.diagnosis}`);
           }
+
+          // ✅ NUEVO: link de videollamada
+          if (msg.type === "call_link") {
+            setCallLink(msg.url);
+            push(`Link de videollamada recibido.`);
+          }
+
+          // ✅ NUEVO: paciente listo
+          if (msg.type === "ready") {
+            setPatientReady(true);
+            push(`Paciente: listo ✅`);
+          }
         };
       } catch (err: any) {
         console.error("Error iniciando WebRTC:", err);
         setError(
           err?.message ??
-            "Ocurrió un error al iniciar la videollamada. Intenta recargar la página."
+            "Ocurrió un error al iniciar la videollamada. Intenta recargar."
         );
       }
     };
@@ -276,33 +277,49 @@ export function useWebRTCCall(appointmentId: string, role: Role) {
 
     return () => {
       cancelled = true;
-      console.log("[RTC] Limpieza de llamada (unmount)");
       hardCleanup();
     };
   }, [appointmentId, role, iceServers]);
 
   const sendAlert = (level: "info" | "warn" | "critical", text: string) => {
-    wsRef.current?.send(
-      JSON.stringify({
-        type: "alert",
-        level,
-        text,
-      })
-    );
+    wsRef.current?.send(JSON.stringify({ type: "alert", level, text }));
   };
 
-  const sendDetails = (
-    diagnosis: string,
-    prescription: string[],
-    followUp: string
-  ) => {
+  const sendDetails = (diagnosis: string, prescription: string[], followUp: string) => {
     const payload = { type: "details", diagnosis, prescription, followUp };
     const dc = dcRef.current;
-    if (dc && dc.readyState === "open") {
-      dc.send(JSON.stringify(payload));
-    }
+    if (dc && dc.readyState === "open") dc.send(JSON.stringify(payload));
     wsRef.current?.send(JSON.stringify(payload));
   };
 
-  return { localStream, remoteStream, events, sendAlert, sendDetails, error };
+  // ✅ NUEVO: Doctor envía link
+  const sendCallLink = (url: string) => {
+    const clean = url.trim();
+    if (!clean) return;
+    setCallLink(clean); // para que el doctor también lo vea
+    wsRef.current?.send(JSON.stringify({ type: "call_link", url: clean, from: role }));
+    push("Link enviado al paciente.");
+  };
+
+  // ✅ NUEVO: Paciente envía “listo”
+  const sendReady = () => {
+    setPatientReady(true);
+    wsRef.current?.send(JSON.stringify({ type: "ready", from: role }));
+    push("Enviando: listo ✅");
+  };
+
+  return {
+    localStream,
+    remoteStream,
+    events,
+    sendAlert,
+    sendDetails,
+    error,
+
+    // ✅ lo nuevo
+    callLink,
+    patientReady,
+    sendCallLink,
+    sendReady,
+  };
 }

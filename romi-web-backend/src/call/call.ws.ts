@@ -12,7 +12,10 @@ type SignalMsg =
   | { type: "sdp-answer"; sdp: any }
   | { type: "ice-candidate"; candidate: any }
   | { type: "alert"; level: "info" | "warn" | "critical"; text: string }
-  | { type: "details"; diagnosis: string; prescription: string[]; followUp: string };
+  | { type: "details"; diagnosis: string; prescription: string[]; followUp: string }
+  | { type: "call_link"; url: string; from?: RoleParam }
+  | { type: "ready"; from?: RoleParam };
+
 
 type SystemMsg = { type: "system"; text: string };
 
@@ -25,11 +28,11 @@ export class CallGateway {
 
   private rooms = new Map<string, Room>();
 
-  constructor(private readonly appointments: AppointmentsService) {}
+  constructor(private readonly appointments: AppointmentsService) { }
 
   private send(ws: WebSocket | undefined, data: any) {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    try { ws.send(JSON.stringify(data)); } catch {}
+    try { ws.send(JSON.stringify(data)); } catch { }
   }
 
   private broadcastCounterpart(aid: string, from: RoleParam, data: any) {
@@ -85,11 +88,40 @@ export class CallGateway {
         ws.on("message", (raw) => {
           try {
             const msg = JSON.parse(String(raw)) as SignalMsg;
-            if (msg.type === "sdp-offer" || msg.type === "sdp-answer" || msg.type === "ice-candidate" || msg.type === "alert" || msg.type === "details") {
-              this.broadcastCounterpart(aid, role, msg);
+
+            const forwardTypes = new Set([
+              "sdp-offer",
+              "sdp-answer",
+              "ice-candidate",
+              "alert",
+              "details",
+              "call_link",
+              "ready",
+            ]);
+
+            if (!forwardTypes.has(msg.type)) return;
+
+            // validación ligera para el link
+            if (msg.type === "call_link") {
+              const url = String(msg.url ?? "").trim();
+              if (!url) return;
+              // opcional: solo permitir http/https
+              if (!/^https?:\/\//i.test(url)) {
+                this.send(ws, { type: "system", text: "Link inválido. Debe iniciar con http(s)://" } as SystemMsg);
+                return;
+              }
+              msg.url = url;
+              msg.from = role;
             }
-          } catch {}
+
+            if (msg.type === "ready") {
+              msg.from = role;
+            }
+
+            this.broadcastCounterpart(aid, role, msg);
+          } catch { }
         });
+
 
         ws.on("close", () => {
           const r = this.rooms.get(aid);
@@ -98,7 +130,7 @@ export class CallGateway {
           this.rooms.set(aid, r);
           this.broadcastCounterpart(aid, role, { type: "system", text: `${role} desconectado` } as SystemMsg);
         });
-      } catch {}
+      } catch { }
     });
   }
 }

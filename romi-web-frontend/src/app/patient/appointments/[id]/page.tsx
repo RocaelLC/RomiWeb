@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import StatusChip from "@/components/appointments/StatusChip";
 import ReminderBanner from "@/components/appointments/ReminderBanner";
-import PrepChecklist from "@/components/appointments/PrepChecklist";
+import { PrepChecklist } from "@/components/appointments/PrepChecklist";
 import PreConsultForm from "@/components/appointments/PreConsultForm";
 import IntakePreview from "@/components/appointments/IntakePreview";
 import AltSlots from "@/components/appointments/AltSlots";
@@ -175,7 +175,7 @@ export default function PatientAppointmentPage() {
               </button>
             </div>
 
-            <PrepChecklist storageKey={appt.id} />
+            <PrepChecklist appointmentId={appt.id} />
             <PreConsultForm appointmentId={appt.id} />
 
             <div>

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { PreconsultationsModule } from "./preconsultations/preconsultations.module";
 
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
@@ -24,7 +25,7 @@ import { HealthModule } from "./health/health.module";
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      
+
       // Enable SSL only when explicitly requested
       ssl:
         (process.env.DB_SSL ?? 'false').toLowerCase() === 'true'
@@ -47,7 +48,9 @@ import { HealthModule } from "./health/health.module";
     RealtimeModule,
     CronModule,
     ClinicalNotesModule,
-     HealthModule,
+    HealthModule,
+    PreconsultationsModule,
+
   ],
 })
-export class AppModule {}
+export class AppModule { }
