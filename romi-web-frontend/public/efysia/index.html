@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EFYSIA — Biotintes de microalgas para una moda circular</title>
+  <meta name="description" content="EFYSIA desarrolla biotintes a base de microalgas para la industria textil: color con impacto ambiental reducido y procesos de biomanufactura avanzados." />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="icon" href="Efysia.jpg" />
+  <meta property="og:title" content="EFYSIA — Biotintes de microalgas" />
+  <meta property="og:description" content="Color sostenible para textiles, impulsado por biotecnología." />
+  <meta property="og:image" content="Efysia.jpg" />
+  <meta property="og:type" content="website" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #0f172a;
+      --bg-elev: rgba(255,255,255,0.05);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --brand: #7dd3fc; /* cyan-300 */
+      --brand-strong:#22d3ee; /* cyan-400 */
+      --accent:#a78bfa; /* violet-400 */
+      --ok:#34d399;
+      --warn:#f59e0b;
+      --danger:#f43f5e;
+      --ring: 0 0 0 4px rgba(125, 211, 252, 0.25);
+      --shadow-lg: 0 20px 50px rgba(2, 6, 23, .6), inset 0 1px 0 rgba(255,255,255,.03);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-lg: 24px;
+    }
+    [data-theme="light"]{
+      --bg:#f8fafc;
+      --bg-soft:#eef2ff;
+      --bg-elev: rgba(0,0,0,0.05);
+      --text:#0f172a;
+      --muted:#475569;
+      --ring: 0 0 0 4px rgba(124, 58, 237, 0.2);
+      --shadow-lg: 0 30px 60px rgba(2, 6, 23, .08), inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    *{box-sizing:border-box}
+    html, body {height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(56,189,248,.25), transparent 40%),
+                  radial-gradient(900px 600px at 120% 10%, rgba(167,139,250,.20), transparent 35%),
+                  var(--bg);
+      line-height:1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      backdrop-filter: blur(8px);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+    }
+    a{color:var(--brand-strong);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Skip */
+    .skip-link{
+      position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;
+    }
+    .skip-link:focus{left:1rem;top:1rem;width:auto;height:auto;z-index:9999;background:var(--bg-soft);padding:.6rem 1rem;border-radius:10px;outline: none;box-shadow: var(--ring)}
+
+    /* Header */
+    header{
+      position:sticky;top:0;z-index:50;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.25));
+    }
+    .nav{
+      display:flex;align-items:center;justify-content:space-between;
+      height:72px;
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand img{height:38px;width:auto;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,.4)}
+    .brand .name{font-weight:800;letter-spacing:.5px;font-family:"Space Grotesk", Inter, sans-serif}
+    nav ul{display:flex;gap:24px;list-style:none;margin:0;padding:0}
+    nav a{font-weight:500;color:var(--text);opacity:.9}
+    nav a:hover{opacity:1}
+    .nav-cta{display:flex;gap:10px;align-items:center}
+    .btn{
+      display:inline-flex;align-items:center;gap:10px;justify-content:center;
+      padding:.8rem 1.1rem;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(125,211,252,.22), rgba(125,211,252,.05));
+      color:var(--text);font-weight:600;text-decoration:none;
+      box-shadow: var(--shadow-lg);
+    }
+    .btn:hover{filter:brightness(1.05);transform: translateY(-1px)}
+    .btn-primary{
+      background: linear-gradient(180deg, rgba(34,211,238,.25), rgba(124,58,237,.20));
+      border:1px solid rgba(167,139,250,.35);
+    }
+    .btn-ghost{background:transparent}
+    .icon{width:18px;height:18px;display:inline-block}
+    .theme-toggle{border:none;background:transparent;cursor:pointer;border-radius:10px;padding:.5rem}
+    .theme-toggle:focus{box-shadow: var(--ring);outline:none}
+
+    /* Mobile */
+    .mobile-toggle{display:none;border:none;background:transparent;color:var(--text);font-size:1.6rem}
+    @media (max-width: 900px){
+      nav ul{display:none}
+      .mobile-toggle{display:block}
+      .mobile-menu{
+        position:fixed;inset:72px 0 auto 0;background:var(--bg-soft);padding:1rem;border-bottom:1px solid rgba(255,255,255,.1);display:none
+      }
+      .mobile-menu.open{display:block}
+      .mobile-menu a{display:block;padding:.9rem 1rem;border-radius:12px;color:var(--text)}
+      .mobile-menu a:hover{background:var(--bg-elev);text-decoration:none}
+    }
+
+    /* Hero */
+    .hero{padding:80px 0 40px; position:relative; overflow:hidden}
+    .orb{position:absolute;border-radius:50%;filter: blur(55px);opacity:.35;pointer-events:none}
+    .orb.cyan{width:380px;height:380px;background:radial-gradient(circle at 30% 30%, #67e8f9, transparent 60%); top:-70px; left:-60px}
+    .orb.violet{width:520px;height:520px;background:radial-gradient(circle at 70% 40%, #a78bfa, transparent 55%); right:-120px; top:-120px}
+    .hero-grid{display:grid;grid-template-columns: 1.15fr 1fr; gap:40px;align-items:center}
+    @media (max-width: 900px){
+      .hero-grid{grid-template-columns:1fr}
+    }
+    .headline{
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      line-height:1.05;margin:0 0 14px;
+      letter-spacing: -0.02em;
+    }
+    .subhead{font-size: clamp(1.02rem, 1.6vw, 1.2rem);color:var(--muted);max-width: 60ch}
+    .tag{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:.45rem .7rem;border-radius:999px;
+      font-size:.84rem;
+      background: linear-gradient(180deg, rgba(56, 189, 248,.18), rgba(124, 58, 237,.15));
+      border: 1px solid rgba(167,139,250,.3);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 14px;
+    }
+    .hero-card{
+      padding:24px;border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow-lg);
+    }
+    .hero-card h3{margin:0 0 10px}
+    .hero-actions{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+
+    /* Sections */
+    section{padding: 64px 0}
+    .section-title{
+      font-family:"Space Grotesk", Inter, sans-serif;
+      font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+      margin: 0 0 10px;
+    }
+    .section-sub{color:var(--muted);margin:0 0 26px}
+    .grid-3{display:grid;grid-template-columns: repeat(3, 1fr);gap:18px}
+    @media (max-width: 900px){.grid-3{grid-template-columns:1fr}}
+    .card{padding:22px;border-radius: var(--radius);border:1px solid rgba(255,255,255,.1);background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));box-shadow: var(--shadow-lg)}
+    .card h4{margin:0 0 6px}
+    .kpi{display:flex;gap:10px;align-items:center;margin-top:8px;color:var(--muted);font-weight:600}
+    .kpi .dot{width:10px;height:10px;border-radius:50%}
+    .dot.ok{background: var(--ok)} .dot.warn{background: var(--warn)} .dot.danger{background: var(--danger)}
+    .muted{color:var(--muted)}
+
+    /* Timeline */
+    .timeline{position:relative;padding-left:24px}
+    .timeline:before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(125,211,252,.7), rgba(167,139,250,.6))}
+    .t-item{position:relative;padding:14px 14px 14px 24px;margin-bottom:10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02))}
+    .t-item:before{content:"";position:absolute;left:-1px;top:18px;width:18px;height:18px;border-radius:50%;background:linear-gradient(180deg, #22d3ee, #a78bfa);box-shadow:0 0 0 4px rgba(34,211,238,.25)}
+
+    /* CTA Banner */
+    .cta{
+      margin-top:10px;padding:26px;border-radius:var(--radius-lg);
+      background: linear-gradient(120deg, rgba(124,58,237,.22), rgba(34,211,238,.22)), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22><stop stop-color=%22%23ffffff%22 stop-opacity=%220.07%22/><stop offset=%221%22 stop-color=%22%23ffffff%22 stop-opacity=%220%22/></linearGradient></defs><rect width=%22100%25%22 height=%22100%25%22 fill=%22url(%23g)%22/></svg>') center/cover no-repeat;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Footer */
+    footer{padding: 36px 0 60px;color:var(--muted)}
+    .footer-grid{display:grid;grid-template-columns: 1.2fr 1fr 1fr;gap:18px}
+    @media (max-width: 900px){.footer-grid{grid-template-columns:1fr}}
+    .social{display:flex;gap:10px}
+    .small{font-size:.9rem}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:.38rem .6rem;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.04);font-size:.8rem;color:var(--muted)}
+
+    /* Reveal on scroll */
+    .reveal{opacity:0;transform: translateY(12px);transition: all .6s cubic-bezier(.2,.65,.2,1)}
+    .reveal.in{opacity:1;transform:none}
+
+    /* Prefers reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .reveal{transition:none}
+      .hero *{animation:none}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <header>
+    <div class="container nav" role="navigation" aria-label="Principal">
+      <div class="brand">
+        <img src="Efysia.jpg" alt="Logo de EFYSIA" />
+        <span class="name">EFYSIA</span>
+      </div>
+      <nav aria-label="Secciones">
+        <ul>
+          <li><a href="#que">Qué hacemos</a></li>
+          <li><a href="#como">Tecnología</a></li>
+          <li><a href="#beneficios">Beneficios</a></li>
+          <li><a href="#noticias">Noticias</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm8-7a1 1 0 0 1 1 1 9 9 0 1 1-9-9 1 1 0 0 1 1 1 7 7 0 1 0 7 7ZM4 12a1 1 0 0 1-1 1H2a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1Z"/>
+          </svg>
+        </button>
+        <a class="btn btn-ghost small" href="https://instagram.com/efysia.mx" target="_blank" rel="noopener">Instagram</a>
+        <a class="btn btn-primary small" href="#contacto">Agendar demo</a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Abrir menú">☰</button>
+      </div>
+    </div>
+    <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Menú móvil">
+      <a href="#que">Qué hacemos</a>
+      <a href="#como">Tecnología</a>
+      <a href="#beneficios">Beneficios</a>
+      <a href="#noticias">Noticias</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="hero">
+      <div class="orb cyan" aria-hidden="true"></div>
+      <div class="orb violet" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div>
+          <span class="tag">Biomanufactura para la moda • Microalgas → Color</span>
+          <h1 class="headline">Biotintes de microalgas para una moda <span style="background: linear-gradient(90deg, var(--brand), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent;">circular</span>.</h1>
+          <p class="subhead">En EFYSIA desarrollamos pigmentos y biotintes a base de <strong>microalgas</strong> que buscan reducir el impacto ambiental del teñido textil. Ciencia aplicada, procesos escalables y resultados de alto desempeño.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#que" aria-label="Explorar qué hacemos">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 5l7 7-7 7M5 12h14"/></svg>
+              Ver soluciones
+            </a>
+            <a class="btn" href="#contacto">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-7.89 5.26a2 2 0 0 1-2.22 0L3 8m18 0-3.2-2.4A2 2 0 0 0 16.7 5H7.3a2 2 0 0 0-1.1.6L3 8"/></svg>
+              Solicitar muestras
+            </a>
+          </div>
+          <p class="muted small" style="margin-top:10px">Reconocimientos en el ecosistema emprendedor en México (Hult Prize Anáhuac 2025, Vozfera 2025).</p>
+        </div>
+        <div class="hero-card glass">
+          <h3>¿Por qué biotintes?</h3>
+          <p>El teñido tradicional puede requerir altas temperaturas, grandes volúmenes de agua y químicos agresivos. Nuestros biotintes buscan color de calidad con procesos más amables.</p>
+          <div class="kpi"><span class="dot ok"></span>Sin metales pesados añadidos</div>
+          <div class="kpi"><span class="dot ok"></span>Compatibles con fibras naturales</div>
+          <div class="kpi"><span class="dot ok"></span>Rutas de escalamiento por lotes</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="que">
+      <div class="container">
+        <h2 class="section-title">Qué hacemos</h2>
+        <p class="section-sub">Desarrollamos y transferimos tecnología de <strong>biopigmentos</strong> y <strong>biotintes</strong> para marcas y plantas textiles. Acompañamos desde exploración de color hasta pilotos industriales.</p>
+        <div class="grid-3">
+          <article class="card reveal">
+            <h4>Paletas bio-basadas</h4>
+            <p>Catálogo de tonos derivados de microalgas y rutas de modificación natural.</p>
+            <span class="badge">I+D a medida</span>
+          </article>
+          <article class="card reveal">
+            <h4>Procesos de aplicación</h4>
+            <p>Protocolos de fijación y curado compatibles con equipos comunes (pads, jet, laboratorio).</p>
+            <span class="badge">Transferencia tecnológica</span>
+          </article>
+          <article class="card reveal">
+            <h4>Pilotos con marcas</h4>
+            <p>Programas de piloto y pruebas de desempeño en telas reales con métricas de calidad.</p>
+            <span class="badge">Escalamiento</span>
+          </article>
+        </div>
+        <div class="cta reveal" style="margin-top:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+            <div>
+              <strong>¿Eres marca o textilera?</strong>
+              <div class="muted">Abrimos cupo para pilotos 2025–2026. Conversemos.</div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <a class="btn btn-primary" href="#contacto">Iniciar proyecto</a>
+              <a class="btn" href="#como">Ver tecnología</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="como">
+      <div class="container">
+        <h2 class="section-title">Nuestra tecnología</h2>
+        <p class="section-sub">Bioprocesos para obtener colorantes a partir de microalgas y su aplicación en textiles.</p>
+        <div class="grid-3">
+          <article class="card reveal">
+            <h4>1) Cultivo &amp; cosecha</h4>
+            <p>Seleccionamos microalgas con perfiles de pigmentos de interés y las cultivamos en condiciones controladas.</p>
+            <span class="badge">Microalgas</span>
+          </article>
+          <article class="card reveal">
+            <h4>2) Extracción</h4>
+            <p>Extracción y purificación de fracciones coloreadas con solventes y condiciones optimizadas.</p>
+            <span class="badge">Pigmentos</span>
+          </article>
+          <article class="card reveal">
+            <h4>3) Fijación a fibra</h4>
+            <p>Desarrollo de mordientes y condiciones de baño/fijado para distintas fibras (algodón, celulósicas, etc.).</p>
+            <span class="badge">Aplicación</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="beneficios">
+      <div class="container">
+        <h2 class="section-title">Beneficios potenciales</h2>
+        <p class="section-sub">Dependiendo de la fibra, equipo y receta, los biotintes pueden ayudar a reducir la carga ambiental del proceso de teñido.</p>
+        <div class="grid-3">
+          <article class="card reveal">
+            <h4>Menos carga química</h4>
+            <p>Formulaciones diseñadas sin metales pesados añadidos y con menor severidad de proceso.</p>
+          </article>
+          <article class="card reveal">
+            <h4>Eficiencia hídrica</h4>
+            <p>Recetas enfocadas en un uso de agua más eficiente y factible de circularidad.</p>
+          </article>
+          <article class="card reveal">
+            <h4>Rendimiento de color</h4>
+            <p>Color estable con parámetros reproducibles y documentación técnica para su adopción.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="noticias">
+      <div class="container">
+        <h2 class="section-title">Noticias &amp; comunidad</h2>
+        <p class="section-sub">Momentos recientes del equipo.</p>
+        <div class="timeline">
+          <div class="t-item reveal">
+            <strong>2025 · Hult Prize (Universidad Anáhuac México)</strong>
+            <div class="muted">Reconocimiento en la competencia — ruta hacia final nacional.</div>
+          </div>
+          <div class="t-item reveal">
+            <strong>2025 · Vozfera (Disruptivo.tv)</strong>
+            <div class="muted">Proyecto ganador por propuesta de biotintes con microalgas.</div>
+          </div>
+          <div class="t-item reveal">
+            <strong>Comunidad</strong>
+            <div class="muted">Síguenos en <a href="https://instagram.com/efysia.mx" target="_blank" rel="noopener">@efysia.mx</a> para avances y pruebas de color.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto">
+      <div class="container">
+        <h2 class="section-title">Hablemos</h2>
+        <p class="section-sub">¿Te interesa probar biotintes en tus telas? Agenda una llamada y cuéntanos tu reto.</p>
+        <div class="grid-3">
+          <form class="card reveal" name="contacto" method="POST" data-netlify="true">
+            <input type="hidden" name="form-name" value="contacto" />
+            <label>Nombre<br />
+              <input required name="nombre" type="text" placeholder="Tu nombre" style="width:100%"/>
+            </label><br />
+            <label>Empresa / marca<br />
+              <input name="empresa" type="text" placeholder="Tu empresa" style="width:100%"/>
+            </label><br />
+            <label>Correo<br />
+              <input required name="email" type="email" placeholder="tucorreo@dominio.com" style="width:100%"/>
+            </label><br />
+            <label>Mensaje<br />
+              <textarea required name="mensaje" rows="5" placeholder="Cuéntanos de tu proyecto" style="width:100%"></textarea>
+            </label><br />
+            <button class="btn btn-primary" type="submit">Enviar</button>
+          </form>
+          <div class="card reveal" style="grid-column: span 2;">
+            <h4>Especificaciones rápidas</h4>
+            <ul>
+              <li>Compatibilidad explorada: algodón y fibras celulósicas.</li>
+              <li>Enfoque: prototipado de color + transferencia de proceso.</li>
+              <li>Colaboración: laboratorios y plantas textiles en México.</li>
+            </ul>
+            <div class="cta" style="margin-top:14px">
+              ¿Prefieres correo? Escríbenos a <a href="efysiabiomoda@gmail.com">efysiabiomoda@gmail.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px">
+          <img src="Efysia.jpg" alt="Logo de EFYSIA" />
+          <span class="name">EFYSIA</span>
+        </div>
+        <p class="small">Biotintes de microalgas para textiles. Ciencia aplicada para una industria más circular.</p>
+        <div class="social">
+          <a class="badge" href="mailto:efysiabiomoda@gmail.com">efysiabiomoda@gmail.com</a>
+          <a class="badge" href="https://instagram.com/efysia.mx" target="_blank" rel="noopener">@efysia.mx</a>
+        </div>
+      </div>
+      <div>
+        <strong>Recursos</strong><br/>
+        <a href="#que">Qué hacemos</a><br/>
+        <a href="#como">Tecnología</a><br/>
+        <a href="#beneficios">Beneficios</a><br/>
+        <a href="#noticias">Noticias</a>
+      </div>
+      <div>
+        <strong>Preferencias</strong><br/>
+        <button class="btn small" id="footerTheme">Cambiar tema</button>
+      </div>
+    </div>
+    <div class="container" style="margin-top:18px">
+      <span class="muted small">© <span id="year"></span> EFYSIA. Todos los derechos reservados. Con el Poder de ROMI ®</span>
+    </div>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "EFYSIA",
+    "url": "https://efysia.mx",
+    "logo": "Efysia.jpg",
+    "sameAs": [
+      "https://instagram.com/efysia.mx"
+    ],
+    "description": "EFYSIA desarrolla biotintes de microalgas para la industria textil."
+  }
+  </script>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
+        const href = a.getAttribute('href');
+        if(href.length > 1){
+          e.preventDefault();
+          document.querySelector(href)?.scrollIntoView({behavior:'smooth', block:'start'});
+          document.getElementById('mobileMenu')?.classList.remove('open');
+        }
+      });
+    });
+
+    // Theme toggle (persisted)
+    const root = document.documentElement;
+    const stored = localStorage.getItem('theme');
+    if(stored){ root.setAttribute('data-theme', stored); }
+    function toggleTheme(){
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    }
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.getElementById('footerTheme').addEventListener('click', toggleTheme);
+
+    // Mobile menu
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileToggle.addEventListener('click', ()=> mobileMenu.classList.toggle('open'));
+
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Reveal on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

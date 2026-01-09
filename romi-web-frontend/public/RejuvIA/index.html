@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Rejuv-IA | Glow + Skin Lab (Pigmento)</title>
+<meta name="description" content="Rejuv-IA: Descubre tu camino hacia una piel radiante. Con nuestro Glow Score, rutinas personalizadas y análisis de piel, te ayudamos a construir hábitos duraderos."/>
+<meta name="theme-color" content="#ffffff"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23FF72E1'/><stop offset='100%' stop-color='%237BDFFF'/></linearGradient></defs><rect width='100' height='100' fill='white'/><circle cx='50' cy='50' r='34' fill='url(%23g)'/><text x='50' y='58' text-anchor='middle' font-family='Verdana' font-size='36' fill='%231a1a1a'>R</text></svg>">
+<style>
+:root{--bg:#f9fbff;--ink:#0f172a;--muted:#606a7b;--line:rgba(15,23,42,.08);--card:#fff;--pink:#ff72e1;--mint:#7bdfff;--radius:18px;--shadow:0 14px 30px rgba(0,0,0,.08);--max:1100px;}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(60vw 60vh at 110% -10%, rgba(122,92,255,.12), transparent 60%),radial-gradient(60vw 60vh at -10% 0%, rgba(255,114,225,.10), transparent 60%),var(--bg);-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--max);margin:auto;padding:clamp(14px,3vw,28px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(14px,2vw,22px)}
+.title{font-size:clamp(28px,5vw,48px);line-height:1.08;margin:.2rem 0 .6rem}
+.subtitle{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.1rem;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:800;cursor:pointer; text-decoration: none; color: var(--ink);}
+.btn.primary{background:linear-gradient(135deg,var(--pink),var(--mint));color:#1a1220;border:none}
+.grid{display:grid;gap:clamp(12px,2vw,18px)}.two{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.kpi{background:linear-gradient(180deg,#fff,#fff5);border:1px solid var(--line);border-radius:16px;padding:12px}
+.badge{display:inline-flex;gap:.5rem;padding:.4rem .7rem;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:800}
+.appbar{position:sticky;bottom:-1px;background:#ffffffdb;backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:50}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);max-width:var(--max);margin:auto}
+.tab{padding:.8rem;font-weight:800;color:#475569;text-align:center;cursor:pointer}
+.tab.active{color:#111827;border-top:3px solid var(--pink)}
+section[hidden]{display:none!important}
+canvas{background:#f1f5f9;border-radius:14px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:98;display:none}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);max-width:520px;width:92vw;z-index:99;display:none}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:#0f172acc;color:#fff;padding:.6rem .9rem;border-radius:10px;z-index:100;display:none}
+.testimonial-card{text-align:center;}
+.testimonial-card img{width:60px;height:60px;border-radius:50%;margin-bottom:.5rem;object-fit:cover;}
+.habit-list li{display:flex;align-items:center;gap:.7rem;margin-bottom:.5rem}
+.habit-list input[type="checkbox"]{width:1.2em;height:1.2em;accent-color:var(--pink)}
+.habit-list label{text-decoration:none;transition:all .2s}
+.habit-list input:checked + label{text-decoration:line-through;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite"></div>
+<div class="overlay" id="modalOverlay"></div>
+
+<div id="welcomeModal" class="card modal">
+    <h3>¡Bienvenida a Rejuv-IA!</h3>
+    <p class="subtitle">Tu asistente para una piel sana y radiante. Empieza tu viaje con 3 simples pasos:</p>
+    <ol class="subtitle" style="padding-left:1.2rem">
+        <li><b>Calcula tu Glow Score:</b> Mide tus hábitos diarios.</li>
+        <li><b>Analiza tu Piel:</b> Usa el Skin Lab con una selfie.</li>
+        <li><b>Crea tu Plan:</b> Genera un plan de 7 días con micro-hábitos.</li>
+    </ol>
+    <button class="btn primary" id="welcomeClose">¡Entendido!</button>
+</div>
+
+<header class="wrap">
+    <div class="card">
+        <h1 class="title">Rejuv-IA <span style="background:linear-gradient(90deg,var(--pink),var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent">Despierta tu Piel</span></h1>
+        <p class="subtitle">Tu viaje hacia una piel radiante comienza aquí. Mide tus hábitos, recibe una rutina a tu medida y analiza tu progreso con el poder de la IA. Todo de forma privada y segura en tu dispositivo.</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
+            <a class="btn primary" href="#glow">Comenzar Glow Test</a>
+            <button class="btn" id="btnRomi">¿Qué es ROMI?</button>
+        </div>
+    </div>
+</header>
+
+<main class="wrap">
+    
+    <div class="card" style="margin-bottom:1rem;border-left: 4px solid var(--mint);">
+        <p class="subtitle" style="font-size: .9rem;"><b>Nota Importante:</b> Rejuv-IA es una herramienta de bienestar y seguimiento de hábitos, no un dispositivo médico. Los resultados y recomendaciones son orientativos. Consulta siempre a un dermatólogo para diagnósticos y tratamientos. </p>
+    </div>
+
+    <section class="card" style="margin-bottom:1rem;">
+        <h4>✨ Tip del Día</h4>
+        <p id="tipOfTheDay" class="subtitle">—</p>
+    </section>
+
+    <section id="glow" class="grid two">
+        <article class="card">
+            <h2>Glow Score</h2>
+            <div class="grid two">
+                <label> Sueño (h) <input id="gSleep" type="number" min="0" max="10" value="7.5" class="btn" style="width:100%"></label>
+                <label> Pasos <input id="gSteps" type="number" min="0" max="20000" value="9000" class="btn" style="width:100%"></label>
+                <label> Vasos de agua <input id="gWater" type="number" min="0" max="12" value="8" class="btn" style="width:100%"></label>
+                <label> Frutas/verduras <input id="gVeg" type="number" min="0" max="8" value="4" class="btn" style="width:100%"></label>
+                <label> Pantalla antes de dormir (h) <input id="gScreen" type="number" step="0.5" min="0" max="6" value="0.5" class="btn" style="width:100%"></label>
+                <label> Estrés (1–5) <input id="gStress" type="number" min="1" max="5" value="2" class="btn" style="width:100%"></label>
+                <label> ¿Usaste SPF 50+ hoy? <select id="gSPF" class="btn" style="width:100%"><option value="1">Sí</option><option value="0">No</option></select></label>
+            </div>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
+                <button class="btn primary" id="btnGlow">Calcular</button>
+                <button class="btn" id="btnGlowTip">Tips Rápidos</button>
+            </div>
+            <p id="glowOut" class="badge" style="margin-top:.6rem">—</p>
+        </article>
+        <article class="card">
+            <h2>Rutina AM / PM</h2>
+            <div class="grid two">
+                <label> Tipo de piel <select id="skin" class="btn" style="width:100%"><option>Mixta</option><option>Grasa</option><option>Seca</option><option>Sensible</option></select></label>
+                <label> Meta <select id="goal" class="btn" style="width:100%"><option value="antiage">Anti-edad</option><option value="manchas">Manchas</option><option value="acne">Acné</option><option value="glow">Más glow</option></select></label>
+            </div>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
+                <button class="btn primary" id="btnRutina">Generar</button>
+                <button class="btn" id="btnRutinaClear">Limpiar</button>
+            </div>
+            <div id="rutinaOut" class="grid two" style="margin-top:.6rem"></div>
+        </article>
+    </section>
+
+    <section id="studio" style="margin-top:16px">
+        <div class="card">
+            <h2>Skin Lab — Pigmento & Enrojecimiento</h2>
+            <p class="subtitle" id="status">Paso 1: sube una selfie o usa el demo. Si estás en HTTP, la cámara se desactiva por seguridad del navegador.</p>
+            <div class="grid two">
+                <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+                    <input id="fileIn" class="btn" type="file" accept="image/*" capture="user">
+                    <button class="btn" id="btnDemo">Usar imagen de prueba</button>
+                </div>
+                <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:flex-end">
+                    <button class="btn" id="btnCamera">Activar cámara</button>
+                    <button class="btn" id="btnSnap" disabled>Tomar foto</button>
+                    <button class="btn primary" id="btnAnalyze" disabled>Analizar</button>
+                </div>
+            </div>
+
+            <div class="grid two" style="margin-top:.6rem">
+                <canvas id="cvSrc" width="360" height="360"></canvas>
+                <canvas id="cvHeat" width="360" height="360"></canvas>
+            </div>
+            <video id="camera" playsinline style="width:100%;max-height:240px;margin-top:.6rem;border-radius:14px;display:none"></video>
+
+            <div class="grid two" style="margin-top:.6rem">
+                <div class="kpi"><strong>ITA (tono)</strong><div class="subtitle" id="kITA">—</div></div>
+                <div class="kpi"><strong>Uniformidad</strong><div class="subtitle" id="kEven">—</div></div>
+                <div class="kpi"><strong>Enrojecimiento</strong><div class="subtitle" id="kRed">—</div></div>
+                <div class="kpi"><strong>Hiperpigmentación</strong><div class="subtitle" id="kPig">—</div></div>
+                <div class="kpi"><strong>Ojeras probables</strong><div class="subtitle" id="kEyes">—</div></div>
+                <div class="kpi"><strong>Piel detectada</strong><div class="subtitle" id="kSkinPct">—</div></div>
+            </div>
+
+            <p class="subtitle" style="margin-top:.6rem">Heatmap: <strong style="color:#d00">rojo</strong> = enrojecimiento, <strong style="color:#6a3dfa">morado</strong> = pigmento/zonas oscuras. <br><b>Recordatorio:</b> Este análisis es una estimación y no constituye un diagnóstico médico.</p>
+            <p class="subtitle" style="margin:.2rem 0 0">✨ Con el poder de <a href="https://romiai.com.mx" target="_blank" rel="noopener"><strong>ROMI ®</strong></a></p>
+        </div>
+    </section>
+    
+    <section id="plan" class="card" style="margin-top:16px;">
+        <h2>Kit de Hábitos Semanal</h2>
+        <p class="subtitle">Selecciona un enfoque y te generaremos un plan de 7 días. ¡Marca tus logros diarios!</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.6rem 0">
+            <select id="kitTheme" class="btn">
+                <option value="glow">Kit "Glow Boost"</option>
+                <option value="detox">Kit "Detox y Calma"</option>
+                <option value="energia">Kit "Energía Matutina"</option>
+            </select>
+            <button class="btn primary" id="btnRegen">Generar Kit</button>
+        </div>
+        <div id="week" class="grid two"></div>
+    </section>
+
+    <section id="testimonials" style="margin-top:16px;">
+        <h2 style="text-align:center; margin-bottom:1rem;">Lo que dicen nuestras usuarias</h2>
+        <div class="grid two">
+            <div class="card testimonial-card">
+                <img src="https://i.pravatar.cc/120?img=1" alt="Foto de usuaria">
+                <p class="subtitle"><i>"¡Increíble! El Glow Score me motivó a dormir mejor y el cambio en mi piel es real. Es como un juego que te hace bien."</i></p>
+                <p><strong>— Ana L.</strong></p>
+            </div>
+            <div class="card testimonial-card">
+                <img src="https://i.pravatar.cc/120?img=2" alt="Foto de usuaria">
+                <p class="subtitle"><i>"La función de Skin Lab me ayudó a entender por qué mi base de maquillaje no se veía uniforme. Ahora sé qué zonas cuidar más."</i></p>
+                <p><strong>— Sofía M.</strong></p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<nav class="appbar">
+    <div class="tabs">
+        <div class="tab active" data-tab="glow">✨ Glow</div>
+        <div class="tab" data-tab="studio">🧪 Skin Lab</div>
+        <div class="tab" data-tab="plan">🗓 Plan</div>
+    </div>
+</nav>
+
+<div id="romiSheet" class="card modal">
+    <h3>¿Qué es ROMI?</h3>
+    <p class="subtitle">Asistente virtual de salud para <strong>prevención y hábitos</strong> (WhatsApp + web). Recordatorios reales, flujos y paneles.</p>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <a class="btn primary" href="https://romiai.com.mx" target="_blank" rel="noopener">Visitar romiai.com.mx</a>
+        <button class="btn" id="romiClose">Cerrar</button>
+    </div>
+</div>
+
+<script>
+/* ====== Helpers/UI ====== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display="none",2400);};
+const secure = location.protocol==="https:" || location.hostname==="localhost";
+if(!secure) $("#status").textContent = "Estás en HTTP. La cámara se desactiva por seguridad. Usa 'Subir foto' o la imagen de prueba.";
+
+const overlay = $("#modalOverlay");
+const showModal = (modalId) => {
+    $(modalId).style.display="block";
+    overlay.style.display="block";
+};
+const closeModal = () => {
+    $$('.modal').forEach(m => m.style.display = 'none');
+    overlay.style.display = 'none';
+};
+
+if (!localStorage.getItem('rejuvIaVisited')) {
+    showModal("#welcomeModal");
+    localStorage.setItem('rejuvIaVisited', 'true');
+}
+$("#welcomeClose").onclick = closeModal;
+$("#btnRomi").onclick = () => showModal("#romiSheet");
+$("#romiClose").onclick = closeModal;
+overlay.onclick = closeModal;
+
+$$(".tab").forEach(b=>b.addEventListener("click",()=>{
+    $$(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+    const id=b.dataset.tab;
+    const section = (id === 'glow') ? '#glow' : (id === 'studio' ? '#studio' : '#plan');
+    $(section).scrollIntoView({behavior:"smooth", block:"start"});
+}));
+
+const TIPS_OF_THE_DAY = [
+    "El ácido hialurónico puede retener hasta 1000 veces su peso en agua. ¡Un súper hidratante!",
+    "No olvides aplicar SPF en cuello y manos, también envejecen.",
+    "Una funda de almohada de seda puede reducir la fricción y la aparición de arrugas a largo plazo.",
+    "La vitamina C es un potente antioxidante que protege tu piel del daño ambiental durante el día.",
+    "Masajear tu rostro al aplicar tus productos puede mejorar la circulación y la absorción.",
+    "Beber té verde puede ayudar a reducir la inflamación de la piel gracias a sus catequinas."
+];
+$("#tipOfTheDay").textContent = TIPS_OF_THE_DAY[Math.floor(Math.random() * TIPS_OF_THE_DAY.length)];
+
+
+/* ====== Glow ====== */
+function z(v,min,max){return Math.max(0,Math.min(1,(v-min)/(max-min))); }
+function calcGlow(){
+    const sleep=+$("#gSleep").value||0, steps=+$("#gSteps").value||0, water=+$("#gWater").value||0, veg=+$("#gVeg").value||0, screen=+$("#gScreen").value||0, stress=+$("#gStress").value||3, spf=+$("#gSPF").value?1:0;
+    const score=z(sleep,6.5,9)*22 + z(steps,4000,10000)*18 + z(water,5,10)*12 + z(veg,2,6)*12 + (1-z(screen,0.5,4.5))*12 + (1-z(stress,1,5))*12 + (spf?12:0);
+    $("#glowOut").textContent = `Glow Score: ${Math.round(score)}/100 — ` + (score>=85 ? "¡Estás brillando! ✨" : (score >= 60 ? "¡Vas por buen camino!" : "Un pequeño hábito hace la diferencia."));
+}
+$("#btnGlow").onclick=calcGlow;
+$("#btnGlowTip").onclick=()=>toast("Tips: SPF 50+, 7.5 h de sueño, 8 vasos de agua, 10 min face yoga.");
+
+/* ====== Rutina ====== */
+function genRutina(){
+    const skin=$("#skin").value.toLowerCase(), goal=$("#goal").value;
+    const am=['Limpieza suave','Vitamina C 10-20% (Antioxidante)','Hidratante (según tu tipo de piel)','SPF 50+ (indispensable)'];
+    if(goal==='acne') am[1] = 'Niacinamida 4-10% (Control de sebo)';
+    const pm=['Doble limpieza (si usas maquillaje/SPF)','Activo (según meta y tolerancia)','Crema reparadora con ceramidas','Opcional: Aceite facial o bálsamo (pieles secas)'];
+    if(goal==='acne') pm[1] = 'Ácido Salicílico 2% (2-3x/sem)';
+    else if(goal==='manchas') pm[1] = 'AHA/Retinoide suave (alternando)';
+    else if(goal==='antiage') pm[1] = 'Retinol/Retinal (empezar 2x/sem)';
+    else pm[1] = 'Tónico/Sérum con ácido hialurónico';
+    const mk=(t,arr)=>`<div class="card"><h4>${t}</h4><ul class="subtitle" style="margin:.3rem 0 0">${arr.map(i=>`<li>${i}</li>`).join('')}</ul></div>`;
+    $("#rutinaOut").innerHTML = mk('AM',am)+mk('PM',pm);
+}
+$("#btnRutina").onclick=genRutina; $("#btnRutinaClear").onclick=()=>$("#rutinaOut").innerHTML='';
+
+/* ====== Kits de Hábitos Semanales ====== */
+const DAYS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const HABIT_KITS = {
+    glow: ['SPF 50+ sin falta', '10 min Face Yoga', '8 vasos de agua', 'Vitamina C (suplemento o sérum)', 'Cena rica en antioxidantes (arándanos, espinacas)', 'Dormir 7.5h mínimo'],
+    detox: ['Ducha fría 30s', 'Té verde en ayunas', 'Sin azúcares añadidos hoy', 'Meditación 5 min', 'Pausa de pantallas 1h antes de dormir', 'Caminar 30 min'],
+    energia: ['Despertar sin snooze', 'Estiramientos matutinos 5 min', 'Desayuno alto en proteína', 'Exposición a luz solar 10 min', 'Playlist de música energizante', 'Planificar el día siguiente']
+};
+function regenPlan(){
+    const grid=$("#week"); const theme = $("#kitTheme").value; const habits = HABIT_KITS[theme];
+    grid.innerHTML='';
+    DAYS.forEach((d, index)=>{
+        const card=document.createElement('div'); card.className='card';
+        const dailyHabits = [...habits].sort(() => 0.5 - Math.random()).slice(0, 3);
+        const habitsHtml = dailyHabits.map((h, i) => `<li><input type="checkbox" id="d${index}h${i}"><label for="d${index}h${i}">${h}</label></li>`).join('');
+        card.innerHTML=`<strong>${d}</strong><ul class="subtitle habit-list" style="margin:.4rem 0 0">${habitsHtml}</ul>`;
+        grid.appendChild(card);
+    });
+}
+regenPlan(); $("#btnRegen").onclick=regenPlan;
+
+/* ====== Skin Lab ====== */
+// **CORRECCIÓN**: El error estaba en la siguiente línea. Se usó `cv` en lugar de `cvH`.
+const cvS=$("#cvSrc"), cvH=$("#cvHeat"), ctxS=cvS.getContext("2d"), ctxH=cvH.getContext("2d");
+const video=$("#camera");
+let stream=null, imgObj=null;
+
+function drawDemo(){
+    const tmp=document.createElement('canvas'); tmp.width=360; tmp.height=360; const c=tmp.getContext('2d');
+    c.fillStyle="#f0c7a8"; c.beginPath(); c.ellipse(180,180,120,150,0,0,Math.PI*2); c.fill();
+    c.fillStyle="#e06a6a"; c.beginPath(); c.ellipse(130,210,30,20,0,0,Math.PI*2); c.fill(); c.beginPath(); c.ellipse(230,210,30,20,0,0,Math.PI*2); c.fill();
+    c.fillStyle="#6a3dfa"; c.globalAlpha=.4; c.beginPath(); c.ellipse(140,160,34,14,0,0,Math.PI*2); c.fill(); c.beginPath(); c.ellipse(220,160,34,14,0,0,Math.PI*2); c.fill(); c.globalAlpha=1;
+    const img=new Image(); img.onload=()=>{ imgObj=img; drawFit(imgObj,cvS); ctxH.clearRect(0,0,cvH.width,cvH.height); enableAnalyze(true); $("#status").textContent="Demo cargado. Da clic en Analizar."; }; img.src=tmp.toDataURL('image/png');
+}
+$("#btnDemo").onclick=drawDemo;
+
+function drawFit(img,cv){ const r=Math.max(cv.width/img.width, cv.height/img.height); const w=img.width*r,h=img.height*r,x=(cv.width-w)/2,y=(cv.height-h)/2; const ctx=cv.getContext('2d'); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(img,x,y,w,h); }
+function enableAnalyze(on){ $("#btnAnalyze").disabled=!on; }
+$("#fileIn").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f); const img=new Image(); img.onload=()=>{ imgObj=img; drawFit(imgObj,cvS); ctxH.clearRect(0,0,cvH.width,cvH.height); enableAnalyze(true); $("#status").textContent="Imagen cargada. Ahora pulsa Analizar."; URL.revokeObjectURL(url); }; img.src=url; });
+
+$("#btnCamera").onclick=async()=>{
+    if(!secure){ toast("Activa HTTPS para usar la cámara."); return; }
+    const status = $("#status");
+    const btnSnap = $("#btnSnap");
+    try{
+        if(!stream){
+            status.textContent="Activando cámara... Acepta el permiso en tu navegador.";
+            stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
+            video.srcObject=stream; video.style.display="block";
+            await video.play();
+            btnSnap.disabled=false;
+            status.textContent="Cámara lista. Pulsa 'Tomar foto'.";
+        } else {
+            stream.getTracks().forEach(t=>t.stop()); stream=null;
+            video.srcObject=null; video.style.display="none";
+            btnSnap.disabled=true;
+            status.textContent="Cámara desactivada.";
+        }
+    }catch(e){
+        console.error("Error de cámara:", e);
+        status.textContent="No se pudo activar la cámara. Revisa los permisos.";
+        toast("Error al activar la cámara.");
+    }
+};
+$("#btnSnap").onclick=()=>{
+    if(!video.srcObject) return;
+    const tmp=document.createElement('canvas'); tmp.width=cvS.width; tmp.height=cvS.height; const c=tmp.getContext('2d');
+    c.drawImage(video,0,0,tmp.width,tmp.height); const img=new Image();
+    img.onload=()=>{ imgObj=img; drawFit(imgObj,cvS); ctxH.clearRect(0,0,cvH.width,cvH.height); enableAnalyze(true); $("#status").textContent="Foto lista. Pulsa Analizar."; };
+    img.src=tmp.toDataURL('image/png');
+};
+
+/* Lógica de análisis de color (sin cambios) */
+function srgb2lin(c){c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);}
+function rgb2xyz(r,g,b){r=srgb2lin(r);g=srgb2lin(g);b=srgb2lin(b);return {x:0.4124564*r+0.3575761*g+0.1804375*b,y:0.2126729*r+0.7151522*g+0.0721750*b,z:0.0193339*r+0.1191920*g+0.9503041*b};}
+function xyz2lab(x,y,z){const Xn=0.95047,Yn=1,Zn=1.08883;const f=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116;const fx=f(x/Xn),fy=f(y/Yn),fz=f(z/Zn);return {L:116*fy-16,a:500*(fx-fy),b:200*(fy-fz)};}
+function rgb2lab(r,g,b){const m=rgb2xyz(r,g,b);return xyz2lab(m.x,m.y,m.z);}
+function rgb2hsv(r,g,b){r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;let h=0;if(d){switch(max){case r:h=((g-b)/d)%6;break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h*=60;if(h<0)h+=360;}return {h,s:max?d/max:0,v:max};}
+function rgb2ycbcr(r,g,b){const y=0.299*r+0.587*g+0.114*b,cb=128-0.168736*r-0.331264*g+0.5*b,cr=128+0.5*r-0.418688*g-0.081312*b;return {y,cb,cr};}
+function isSkin(r,g,b){const {h,s,v}=rgb2hsv(r,g,b);const hsvOK=(h>=0&&h<=50)&&(s>=0.23&&s<=0.68)&&(v>=0.35&&v<=1);const {cb,cr}=rgb2ycbcr(r,g,b);const ycbcrOK=(cb>=77&&cb<=127)&&(cr>=133&&cr<=173);return hsvOK&&ycbcrOK;}
+function analyze(){
+    if(!imgObj){ toast("Sube o toma una foto."); return; }
+    drawFit(imgObj,cvS);
+    const base = ctxS.getImageData(0,0,cvS.width,cvS.height); const data = base.data, w=base.width, h=base.height;
+    let sumL=0,sumA=0,sumB=0,sumL2=0,skin=0,redSum=0,dark=0; let sumUp=0,cUp=0,sumLow=0,cLow=0;
+    const overlay = ctxH.createImageData(w,h); const o=overlay.data;
+    for(let y=0;y<h;y++){for(let x=0;x<w;x++){const i=(y*w+x)*4, r=data[i], g=data[i+1], b=data[i+2], a=data[i+3]; if(a<10) continue; if(!isSkin(r,g,b)) continue; const {L,a:la,b:lb}=rgb2lab(r,g,b); sumL+=L; sumA+=la; sumB+=lb; sumL2+=L*L; skin++; if(la>0) redSum+=la; if(y<h*0.33){ sumUp+=L; cUp++; } else if(y>h*0.33 && y<h*0.66){ sumLow+=L; cLow++; }}}
+    if(skin<300){ $("#kSkinPct").textContent="Poca piel detectada"; toast("Acércate más a la cámara y usa buena luz."); return; }
+    const meanL=sumL/skin, meanA=sumA/skin, meanB=sumB/skin, stdL=Math.sqrt(Math.max(0,(sumL2/skin)-(meanL*meanL)));
+    const ITA = Math.atan2((meanL-50), meanB) * 180/Math.PI; const evenness = Math.max(0, Math.min(100, 100 - (stdL*2))); const rednessIdx = Math.max(0, Math.min(100, (Math.max(0, redSum/skin)/25)*100));
+    for(let y=0;y<h;y++){for(let x=0;x<w;x++){const i=(y*w+x)*4, r=data[i], g=data[i+1], b=data[i+2], a=data[i+3]; if(a<10) continue; const oi=i; o[oi+0]=data[i+0]; o[oi+1]=data[i+1]; o[oi+2]=data[i+2]; o[oi+3]=255; if(!isSkin(r,g,b)) continue; const {L,a:la}=rgb2lab(r,g,b); if(la>0){ const A=Math.min(140,(la/30)*160); o[oi+0]=Math.round(o[oi+0]*(1- A/255)+220*(A/255)); o[oi+1]=Math.round(o[oi+1]*(1- A/255)+30*(A/255)); o[oi+2]=Math.round(o[oi+2]*(1- A/255)+30*(A/255)); } if(L<(meanL-1.0*stdL)){ dark++; const A=Math.min(180,((meanL-L)/25)*200); o[oi+0]=Math.round(o[oi+0]*(1- A/255)+110*(A/255)); o[oi+1]=Math.round(o[oi+1]*(1- A/255)+70*(A/255)); o[oi+2]=Math.round(o[oi+2]*(1- A/255)+245*(A/255)); }}}
+    ctxH.putImageData(overlay,0,0);
+    const hyperPct = Math.max(0, Math.min(100, (dark/skin)*100*1.4)); let eye='—'; if(cUp&&cLow){ const d=(sumUp/cUp)-(sumLow/cLow); eye = d>6.5?'Alta':(d>3.5?'Media':'Baja'); }
+    const skinPct = Math.round((skin/(w*h))*100);
+    $("#kITA").textContent=`${ITA.toFixed(1)}°`; $("#kEven").textContent=`${Math.round(evenness)}/100`; $("#kRed").textContent=`${Math.round(rednessIdx)}/100`; $("#kPig").textContent=`${Math.round(hyperPct)}/100`; $("#kEyes").textContent=eye; $("#kSkinPct").textContent=`${skinPct}%`;
+    toast("Análisis listo ✅");
+}
+$("#btnAnalyze").onclick=analyze;
+</script>
+</body>
+</html>

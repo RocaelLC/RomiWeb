@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ROMI MED | MVP 2026</title>
+
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary:#D97F8C;
+      --primary-2:#F3B7C1;
+      --secondary:#EBCB8B;
+      --olive:#BBD38A;
+      --ink:#1F2937;
+      --muted:#6B7280;
+      --bg:#FBFAFB;
+      --surface:#FFFFFF;
+      --border:#E9E3E8;
+      --danger:#EF4444;
+      --success:#10B981;
+      --violet:#8B5CF6;
+
+      --radius-xl:26px;
+      --radius-lg:18px;
+      --radius-md:14px;
+      --shadow:0 18px 50px rgba(17,24,39,0.08);
+      --shadow-soft:0 10px 26px rgba(17,24,39,0.06);
+      --t:0.22s ease;
+      --max:980px;
+
+      --safeTop: env(safe-area-inset-top);
+      --safeRight: env(safe-area-inset-right);
+      --safeBottom: env(safe-area-inset-bottom);
+      --safeLeft: env(safe-area-inset-left);
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html,body{ height:100%; }
+    body{
+      font-family:Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(217,127,140,0.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(235,203,139,0.16), transparent 55%),
+        var(--bg);
+      color:var(--ink);
+      min-height:100svh;
+      display:flex;
+
+      /* ✅ Importante: en móvil NO usamos overflow:hidden (causa que “desaparezca” el fixed/drawer en algunos navegadores) */
+      overflow: hidden;
+
+      padding: var(--safeTop) var(--safeRight) var(--safeBottom) var(--safeLeft);
+
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* ===== Mobile Top Header (solo móvil/tablet) ===== */
+    .m-topbar{
+      display:none;
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.86);
+      border-bottom: 1px solid var(--border);
+      padding: calc(10px + var(--safeTop)) 12px 10px;
+    }
+    .m-topbar .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:nowrap;
+    }
+    .m-brand{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .m-badge{
+      width:38px; height:38px; border-radius:14px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display:flex; align-items:center; justify-content:center;
+      color:white; font-size:18px;
+      box-shadow: 0 10px 22px rgba(217,127,140,0.22);
+      flex:0 0 auto;
+    }
+    .m-brand b{
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .m-brand span{
+      display:block;
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .m-hamb{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: 14px;
+      width: 44px; height: 44px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+    }
+    .m-hamb i{ font-size: 22px; color: var(--ink); }
+
+    /* ===== Drawer overlay ===== */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(17,24,39,0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--t);
+      z-index: 9998;
+    }
+    .overlay.on{
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Layout */
+    .sidebar{
+      width:270px;
+      background: rgba(255,255,255,0.85);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      z-index:10;
+    }
+    .main{
+      flex:1;
+      overflow:auto;
+      padding: 22px 22px 80px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .right{
+      width: 340px;
+      background: rgba(255,255,255,0.85);
+      border-left: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.72));
+      box-shadow: var(--shadow-soft);
+      min-width:0;
+    }
+    .brand-badge{
+      width:46px; height:46px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display:flex; align-items:center; justify-content:center;
+      color:white; font-size: 22px;
+      box-shadow: 0 10px 20px rgba(217,127,140,0.25);
+      flex:0 0 auto;
+    }
+    .brand h1{
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 18px; line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand p{
+      font-size: 12px; color: var(--muted); margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav{ display:flex; flex-direction:column; gap: 8px; }
+    .nav-btn{
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 12px 12px;
+      border-radius: 16px;
+      display:flex; align-items:center; gap: 12px;
+      cursor:pointer;
+      color: var(--muted);
+      transition: var(--t);
+      font-weight: 600;
+      min-width: 0;
+    }
+    .nav-btn i{ font-size: 22px; color: var(--muted); flex:0 0 auto; }
+    .nav-btn span{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-btn:hover{
+      background: rgba(217,127,140,0.08);
+      color: var(--ink);
+    }
+    .nav-btn.active{
+      background: rgba(217,127,140,0.12);
+      border-color: rgba(217,127,140,0.28);
+      color: var(--ink);
+    }
+    .nav-btn.active i{ color: var(--primary); }
+
+    .wrap{ max-width: var(--max); margin: 0 auto; }
+    .view{ display:none; animation: fade .32s ease; }
+    .view.active{ display:block; }
+
+    .topbar{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .title{ min-width: 0; }
+    .title h2{
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+      word-break: break-word;
+    }
+    .title p{ color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+    .pillrow{ display:flex; gap: 10px; flex-wrap:wrap; }
+    .pill{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.75);
+      padding: 8px 10px;
+      border-radius: 999px;
+      display:flex; align-items:center; gap: 8px;
+      font-size: 12px;
+      box-shadow: 0 8px 18px rgba(17,24,39,0.04);
+      white-space: nowrap;
+    }
+    .pill strong{ font-weight:700; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .card{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      min-width: 0;
+    }
+    .card h3{
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 16px;
+      margin-bottom: 10px;
+      display:flex; align-items:center; gap: 10px;
+      min-width: 0;
+    }
+    .card h3 i{ color: var(--primary); font-size: 20px; flex:0 0 auto; }
+    .muted{ color: var(--muted); font-size: 13px; }
+
+    .btn{
+      border: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color:white;
+      padding: 10px 14px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 700;
+      transition: var(--t);
+      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
+      display:inline-flex; align-items:center; gap: 10px;
+      user-select:none;
+      min-height: 44px;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0px); }
+    .btn.ghost{
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn.danger{ background: linear-gradient(135deg, #EF4444, #F59E0B); }
+
+    .two-col{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .route{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 14px;
+      padding: 10px 0 6px;
+    }
+    .node{
+      width: 78px; height: 78px; border-radius: 50%;
+      display:flex; align-items:center; justify-content:center;
+      color:white; font-size: 30px;
+      box-shadow: 0 10px 0 rgba(0,0,0,0.08);
+      cursor:pointer;
+      position:relative;
+      transition: var(--t);
+      user-select:none;
+    }
+    .node:active{ transform: translateY(6px); box-shadow:none; }
+    .node .lbl{
+      position:absolute; bottom: -30px;
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      white-space: nowrap;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.95);
+    }
+    .node.done{ background: var(--olive); box-shadow: 0 10px 0 rgba(187,211,138,0.55); }
+    .node.current{ background: var(--primary); box-shadow: 0 10px 0 rgba(217,127,140,0.55); animation: bounce 2.2s infinite; }
+    .node.locked{ background: #E5E7EB; color:#9CA3AF; box-shadow: 0 10px 0 #D1D5DB; cursor:not-allowed; }
+    .line{ width:4px; height:28px; background: #E5E7EB; margin-top:-6px; margin-bottom:-6px; }
+
+    .modes{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+    }
+    .mode{
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.92);
+      padding: 14px;
+      cursor:pointer;
+      transition: var(--t);
+      box-shadow: 0 10px 24px rgba(17,24,39,0.05);
+      min-height: 108px;
+      min-width: 0;
+    }
+    .mode:hover{ transform: translateY(-3px); border-color: rgba(217,127,140,0.35); }
+    .mode .ico{ font-size: 26px; margin-bottom: 8px; }
+    .mode h4{ font-family: Fredoka, Poppins, sans-serif; font-size: 14px; margin-bottom: 4px; }
+    .mode p{ font-size: 12px; color: var(--muted); }
+
+    .qbox{
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.96);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      min-width: 0;
+    }
+    .qmeta{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      background: rgba(217,127,140,0.08);
+      color: var(--ink);
+      display:flex; gap:8px; align-items:center;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tag small{ font-weight: 700; color: var(--primary); }
+    .stem{ font-size: 14px; line-height: 1.55; margin: 10px 0 12px; }
+    .opts{ display:flex; flex-direction:column; gap: 10px; }
+    .opt{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 10px 12px;
+      cursor:pointer;
+      transition: var(--t);
+      display:flex; gap:10px; align-items:flex-start;
+      min-height: 44px;
+    }
+    .opt:hover{ border-color: rgba(217,127,140,0.35); transform: translateY(-1px); }
+    .opt .key{
+      width: 26px; height: 26px; border-radius: 10px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(235,203,139,0.22);
+      font-weight: 800;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+    .opt.correct{ border-color: rgba(16,185,129,0.55); background: rgba(16,185,129,0.08); }
+    .opt.wrong{ border-color: rgba(239,68,68,0.55); background: rgba(239,68,68,0.08); }
+
+    .feedback{
+      margin-top: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 12px;
+      background: rgba(255,255,255,0.85);
+      display:none;
+    }
+    .feedback.show{ display:block; }
+    .fb-title{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .fb-title .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 0 6px rgba(16,185,129,0.16);
+    }
+    .fb-title.bad .dot{
+      background: var(--danger);
+      box-shadow: 0 0 0 6px rgba(239,68,68,0.14);
+    }
+    .fb-body{ font-size: 13px; color: var(--ink); line-height: 1.6; }
+    .fb-body ul{ margin: 8px 0 0 18px; }
+    .fb-actions{ margin-top: 10px; display:flex; gap:10px; flex-wrap:wrap; }
+
+    .chat{
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      height: clamp(420px, 62vh, 560px);
+    }
+    .chat-head{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      background: linear-gradient(180deg, rgba(217,127,140,0.10), rgba(255,255,255,0.0));
+    }
+    .chat-head .who{ display:flex; align-items:center; gap:10px; font-weight: 800; min-width:0; }
+    .ax{
+      width: 34px; height: 34px; border-radius: 14px;
+      display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color:white;
+      box-shadow: 0 12px 22px rgba(217,127,140,0.20);
+      flex:0 0 auto;
+    }
+    .chat-body{
+      flex:1;
+      padding: 14px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .msg{
+      max-width: 82%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.85);
+      word-break: break-word;
+    }
+    .msg.user{
+      align-self:flex-end;
+      background: rgba(217,127,140,0.14);
+      border-color: rgba(217,127,140,0.30);
+    }
+    .msg.ai{ align-self:flex-start; }
+    .chat-foot{
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      display:flex;
+      gap: 10px;
+      background: rgba(255,255,255,0.75);
+    }
+    .input{
+      flex:1;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      outline:none;
+      background: rgba(255,255,255,0.92);
+      min-height: 44px;
+    }
+
+    .voice{
+      border-radius: 28px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background:
+        radial-gradient(900px 420px at 20% 0%, rgba(217,127,140,0.50), transparent 60%),
+        radial-gradient(900px 420px at 90% 0%, rgba(235,203,139,0.45), transparent 60%),
+        linear-gradient(135deg, #1F2937, #111827);
+      color:white;
+      box-shadow: 0 22px 60px rgba(17,24,39,0.40);
+      position:relative;
+      overflow:hidden;
+      min-height: clamp(520px, 72vh, 640px);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .voice .top{ display:flex; justify-content:space-between; align-items:center; gap: 10px; opacity:0.95; flex-wrap:wrap; }
+    .voice .top small{ opacity: 0.75; letter-spacing: 1px; text-transform: uppercase; }
+    .voice .ava{
+      width: 140px; height: 140px; border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28), transparent 55%),
+        linear-gradient(135deg, var(--primary), var(--secondary));
+      display:flex; align-items:center; justify-content:center;
+      font-size: 56px;
+      box-shadow: 0 0 0 0 rgba(217,127,140,0.45);
+      animation: pulse 2.2s infinite;
+      margin: 18px auto 8px;
+    }
+    .voice .prompt{
+      text-align:center;
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 0 14px;
+      min-height: 96px;
+      color: rgba(255,255,255,0.92);
+      word-break: break-word;
+    }
+    .wave{ display:flex; justify-content:center; gap:6px; height: 38px; align-items:center; opacity:0; transition: var(--t); }
+    .wave.on{ opacity:1; }
+    .bar{
+      width: 6px; border-radius: 999px;
+      background: rgba(255,255,255,0.70);
+      animation: sound .45s infinite ease-in-out alternate;
+    }
+    .voice .actions{ display:flex; justify-content:center; gap: 16px; padding: 18px 0 6px; flex-wrap: wrap; }
+    .circle{
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 0; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 22px;
+      transition: var(--t);
+      min-height: 56px;
+      min-width: 56px;
+    }
+    .circle:hover{ transform: scale(1.04); }
+    .circle.mic{ background: rgba(239,68,68,0.95); color: white; box-shadow: 0 14px 30px rgba(239,68,68,0.26); }
+    .circle.mic.listening{ background: white; color: rgba(239,68,68,0.95); }
+    .circle.ghost{ background: rgba(255,255,255,0.14); color: white; border: 1px solid rgba(255,255,255,0.20); }
+    .circle.end{ background: rgba(239,68,68,0.12); color: rgba(239,68,68,0.95); border: 1px solid rgba(239,68,68,0.20); }
+
+    .stat{
+      display:flex; justify-content:space-between; align-items:center;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.90);
+      box-shadow: 0 10px 20px rgba(17,24,39,0.04);
+      gap: 10px;
+      min-width: 0;
+    }
+    .stat .l{ display:flex; align-items:center; gap: 10px; min-width:0; }
+    .stat .l i{ font-size: 22px; flex:0 0 auto; }
+    .stat .v{ font-weight: 900; font-size: 16px; }
+    .stat .k{ font-size: 12px; color: var(--muted); font-weight: 700; }
+
+    .assistant{
+      border-radius: 22px;
+      border: 1px solid rgba(217,127,140,0.22);
+      background: linear-gradient(180deg, rgba(217,127,140,0.12), rgba(255,255,255,0.85));
+      padding: 12px;
+      box-shadow: 0 18px 40px rgba(217,127,140,0.10);
+    }
+    .assistant h4{
+      font-family: Fredoka, Poppins, sans-serif;
+      display:flex; align-items:center; gap:10px;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .assistant p{ font-size: 12px; color: var(--ink); line-height: 1.55; }
+    .assistant .tip{
+      margin-top: 10px;
+      border: 1px dashed rgba(217,127,140,0.35);
+      border-radius: 16px;
+      padding: 10px;
+      background: rgba(255,255,255,0.65);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .form{ display:flex; flex-direction:column; gap:10px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .sel,.txt{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: 14px;
+      padding: 10px 12px;
+      outline:none;
+      font-size: 13px;
+      min-width: 160px;
+      flex: 1;
+      min-height: 44px;
+    }
+    .help{ font-size: 12px; color: var(--muted); }
+
+    .imgblock{
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.92);
+      padding: 10px;
+      margin: 10px 0 2px;
+      overflow:hidden;
+    }
+    .imgblock .cap{ font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    .examhead{
+      display:flex; justify-content:space-between; align-items:center; gap: 12px; flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .progress{
+      height: 10px;
+      border-radius: 999px;
+      background: #F3F4F6;
+      overflow:hidden;
+      border: 1px solid var(--border);
+      flex:1;
+      min-width: 220px;
+    }
+    .progress > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--olive), var(--secondary), var(--primary));
+      transition: width var(--t);
+    }
+    .timer{
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,0.26);
+      background: rgba(17,24,39,0.40);
+      color:white;
+      display:flex; align-items:center; gap: 8px;
+      white-space: nowrap;
+    }
+
+    /* ==========================
+       ✅ RESPONSIVE (CORREGIDO)
+       - En móvil/tablet: topbar + drawer
+       - Eliminamos menú inferior fijo (era el que se “perdía”)
+       ========================== */
+
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr; }
+      .modes{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (max-width: 1024px){
+      body{
+        /* ✅ ahora el body sí scrollea en móviles/tablets */
+        overflow: auto;
+        display:block;
+      }
+
+      /* ✅ mostramos topbar móvil */
+      .m-topbar{ display:block; }
+
+      /* ✅ sidebar se vuelve drawer */
+      .sidebar{
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100svh;
+        width: min(320px, 86vw);
+        transform: translateX(-110%);
+        transition: var(--t);
+        z-index: 9999;
+        border-right: 1px solid var(--border);
+        padding-top: calc(14px + var(--safeTop));
+      }
+      .sidebar.open{
+        transform: translateX(0);
+      }
+
+      .main{
+        padding: 14px 14px 24px;
+        overflow: visible;
+      }
+
+      .right{
+        width: 100%;
+        border-left: 0;
+        border-top: 1px solid var(--border);
+        margin-top: 12px;
+      }
+
+      .two-col{ grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px){
+      .modes{ grid-template-columns: 1fr; }
+      .two-col{ grid-template-columns: 1fr; }
+      .chat{ height: min(60svh, 520px); }
+      .voice{ min-height: min(72svh, 560px); }
+    }
+
+    @keyframes fade{ from{ opacity:0; transform: translateY(8px);} to{ opacity:1; transform: translateY(0);} }
+    @keyframes bounce{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-5px);} }
+    @keyframes pulse{
+      0%{ box-shadow: 0 0 0 0 rgba(217,127,140,0.35); }
+      70%{ box-shadow: 0 0 0 26px rgba(217,127,140,0); }
+      100%{ box-shadow: 0 0 0 0 rgba(217,127,140,0); }
+    }
+    @keyframes sound{ 0%{ height: 6px; } 100%{ height: 32px; } }
+  </style>
+</head>
+
+<body>
+
+  <!-- ✅ Mobile Topbar -->
+  <header class="m-topbar">
+    <div class="row">
+      <button class="m-hamb" onclick="toggleMenu(true)" aria-label="Abrir menú">
+        <i class="ph-bold ph-list"></i>
+      </button>
+
+      <div class="m-brand">
+        <div class="m-badge"><i class="ph-bold ph-heartbeat"></i></div>
+        <div style="min-width:0">
+          <b>ROMI MED</b>
+          <span>MVP 2026 · ENARM / USMLE / MIR</span>
+        </div>
+      </div>
+
+      <div style="width:44px; height:44px;"></div>
+    </div>
+  </header>
+
+  <!-- ✅ Overlay para cerrar drawer -->
+  <div class="overlay" id="overlay" onclick="toggleMenu(false)"></div>
+
+  <!-- SIDEBAR (drawer en móvil) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-badge"><i class="ph-bold ph-heartbeat"></i></div>
+      <div>
+        <h1>ROMI MED</h1>
+        <p>MVP 2026 · ENARM / USMLE / MIR</p>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="nav-btn active" onclick="go('dashboard', this); toggleMenu(false)">
+        <i class="ph-bold ph-compass"></i><span>Inicio</span>
+      </button>
+      <button class="nav-btn" onclick="go('practice', this); toggleMenu(false)">
+        <i class="ph-bold ph-barbell"></i><span>Entrenar</span>
+      </button>
+      <button class="nav-btn" onclick="go('exam', this); toggleMenu(false)">
+        <i class="ph-bold ph-exam"></i><span>Simulacro</span>
+      </button>
+      <button class="nav-btn" onclick="go('errors', this); toggleMenu(false)">
+        <i class="ph-bold ph-warning-circle"></i><span>Errores</span>
+      </button>
+      <button class="nav-btn" onclick="go('plan', this); toggleMenu(false)">
+        <i class="ph-bold ph-calendar-check"></i><span>Plan Semanal</span>
+      </button>
+      <button class="nav-btn" onclick="go('voice', this); toggleMenu(false)">
+        <i class="ph-bold ph-microphone-stage"></i><span>Oral Clínica</span>
+      </button>
+      <button class="nav-btn" onclick="go('tutor', this); toggleMenu(false)">
+        <i class="ph-bold ph-chats"></i><span>Tutor IA</span>
+      </button>
+      <button class="nav-btn" onclick="go('analytics', this); toggleMenu(false)">
+        <i class="ph-bold ph-chart-line-up"></i><span>Analytics</span>
+      </button>
+      <button class="nav-btn" onclick="go('settings', this); toggleMenu(false)">
+        <i class="ph-bold ph-gear-six"></i><span>Ajustes</span>
+      </button>
+    </div>
+
+    <div style="margin-top:auto; padding: 10px; border:1px solid var(--border); border-radius: 18px; background: rgba(255,255,255,0.72);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <i class="ph-fill ph-sparkle" style="color: var(--primary); font-size: 20px;"></i>
+        <div style="font-weight:800; font-size: 12px;">MVP listo</div>
+      </div>
+      <div class="muted" style="margin-top:6px; font-size: 11px;">
+        Banco de casos + simulacro + retroalimentación + analítica.
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="wrap">
+
+      <!-- DASHBOARD -->
+      <section id="v-dashboard" class="view active">
+        <div class="topbar">
+          <div class="title">
+            <h2>Inicio</h2>
+            <p>Ruta de alto rendimiento con casos clínicos tipo examen + retroalimentación.</p>
+          </div>
+          <div class="pillrow">
+            <div class="pill"><i class="ph-fill ph-fire" style="color:var(--secondary)"></i> Racha <strong id="streakP">0</strong></div>
+            <div class="pill"><i class="ph-fill ph-lightning" style="color:var(--primary)"></i> XP <strong id="xpP">0</strong></div>
+            <div class="pill"><i class="ph-fill ph-coin" style="color:var(--secondary)"></i> Monedas <strong id="coinsP">0</strong></div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3><i class="ph-bold ph-map-trifold"></i> Ruta ENARM (MVP)</h3>
+            <p class="muted">Cada nodo desbloquea sets de casos clínicos y mini-simulacros.</p>
+
+            <div class="route" style="margin-top: 14px;">
+              <div class="node done" onclick="jumpToTraining('General')"><i class="ph-fill ph-check"></i><div class="lbl">Inicio</div></div>
+              <div class="line"></div>
+              <div class="node current" onclick="jumpToTraining('Cardio')"><i class="ph-fill ph-heartbeat"></i><div class="lbl">Cardio</div></div>
+              <div class="line"></div>
+              <div class="node locked" onclick="locked()"><i class="ph-fill ph-lungs"></i><div class="lbl">Respi</div></div>
+              <div class="line"></div>
+              <div class="node locked" onclick="locked()"><i class="ph-fill ph-first-aid"></i><div class="lbl">Urgencias</div></div>
+              <div class="line"></div>
+              <div class="node locked" onclick="locked()"><i class="ph-fill ph-baby"></i><div class="lbl">Pediatría</div></div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px;">
+              <button class="btn" onclick="go('practice'); openMode('quick')"><i class="ph-bold ph-play"></i> Práctica rápida</button>
+              <button class="btn ghost" onclick="go('exam'); startExam()"><i class="ph-bold ph-exam"></i> Simulacro demo</button>
+              <button class="btn ghost" onclick="go('errors'); renderErrors()"><i class="ph-bold ph-warning-circle"></i> Ver errores</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><i class="ph-bold ph-stethoscope"></i> Enfoque del MVP</h3>
+            <p class="muted">Núcleo: ENARM + explicaciones + simulacros + plan semanal + analítica.</p>
+            <div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
+              <div class="two-col">
+                <div style="border:1px solid var(--border); border-radius:18px; padding: 12px; background: rgba(255,255,255,0.8);">
+                  <div style="font-weight:800; font-size: 13px;">Meta</div>
+                  <div class="muted" style="margin-top:6px;">Subir aciertos y detectar áreas débiles temprano.</div>
+                </div>
+                <div style="border:1px solid var(--border); border-radius:18px; padding: 12px; background: rgba(255,255,255,0.8);">
+                  <div style="font-weight:800; font-size: 13px;">Modo docente</div>
+                  <div class="muted" style="margin-top:6px;">Analítica por sistema y desempeño por cohorte (demo).</div>
+                </div>
+              </div>
+              <div class="help" style="margin-top: 10px;">
+                (Este demo usa datos de ejemplo; listo para conectar IA y banco real.)
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRACTICE -->
+      <section id="v-practice" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Entrenar</h2>
+            <p>Casos clínicos tipo examen + retroalimentación inmediata.</p>
+          </div>
+          <div class="pillrow">
+            <div class="pill"><i class="ph-fill ph-target" style="color:var(--primary)"></i> Sistema <strong id="sysPill">Mixto</strong></div>
+            <div class="pill"><i class="ph-fill ph-activity" style="color:var(--olive)"></i> Dificultad <strong id="diffPill">Media</strong></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><i class="ph-bold ph-grid-four"></i> Modos de entrenamiento</h3>
+          <div class="modes" style="margin-top: 10px;">
+            <div class="mode" onclick="openMode('quick')">
+              <div class="ico" style="color:var(--primary)"><i class="ph-duotone ph-lightning"></i></div>
+              <h4>Práctica rápida</h4><p>Feedback inmediato.</p>
+            </div>
+            <div class="mode" onclick="openMode('image')">
+              <div class="ico" style="color:var(--violet)"><i class="ph-duotone ph-image"></i></div>
+              <h4>Casos con imagen</h4><p>ECG / Rx (demo).</p>
+            </div>
+            <div class="mode" onclick="openMode('clinical')">
+              <div class="ico" style="color:var(--secondary)"><i class="ph-duotone ph-stethoscope"></i></div>
+              <h4>Razonamiento clínico</h4><p>Dx → siguiente paso → manejo.</p>
+            </div>
+            <div class="mode" onclick="openMode('highyield')">
+              <div class="ico" style="color:var(--olive)"><i class="ph-duotone ph-book-open-text"></i></div>
+              <h4>High-Yield</h4><p>Dato clave + trampa.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+          <h3><i class="ph-bold ph-sliders-horizontal"></i> Configurar set</h3>
+          <div class="form">
+            <div class="row">
+              <select class="sel" id="selSystem">
+                <option value="Mixto">Mixto</option>
+                <option value="Cardio">Cardio</option>
+                <option value="Neuro">Neuro</option>
+                <option value="Urgencias">Urgencias</option>
+                <option value="Pediatría">Pediatría</option>
+                <option value="Gineco">Gineco</option>
+                <option value="Salud Pública">Salud Pública</option>
+              </select>
+              <select class="sel" id="selDifficulty">
+                <option value="Fácil">Fácil</option>
+                <option value="Media" selected>Media</option>
+                <option value="Difícil">Difícil</option>
+              </select>
+              <select class="sel" id="selCount">
+                <option value="5">5 preguntas</option>
+                <option value="8" selected>8 preguntas</option>
+                <option value="10">10 preguntas</option>
+              </select>
+            </div>
+            <div class="row">
+              <button class="btn" onclick="startTraining()"><i class="ph-bold ph-play"></i> Iniciar set</button>
+              <button class="btn ghost" onclick="resetTrainingUI()"><i class="ph-bold ph-arrow-counter-clockwise"></i> Limpiar</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="trainingArea" style="margin-top: 14px; display:none;">
+          <div class="qbox">
+            <div class="qmeta">
+              <div class="tag"><i class="ph-fill ph-hash"></i> <span id="qIndex">1/8</span></div>
+              <div class="tag"><small id="qSystem">Cardio</small> <span id="qTopic">Arritmias</span></div>
+              <div class="tag"><i class="ph-fill ph-chart-bar"></i> <span id="qDiff">Media</span></div>
+            </div>
+
+            <div id="qImage" style="display:none;"></div>
+            <div class="stem" id="qStem"></div>
+            <div class="opts" id="qOpts"></div>
+
+            <div class="feedback" id="qFeedback">
+              <div class="fb-title" id="fbTitle">
+                <div class="dot"></div>
+                <div id="fbLabel">Correcto</div>
+              </div>
+              <div class="fb-body" id="fbBody"></div>
+              <div class="fb-actions">
+                <button class="btn" onclick="nextQ()"><i class="ph-bold ph-arrow-right"></i> Siguiente</button>
+                <button class="btn ghost" onclick="askRomiOnThis()"><i class="ph-bold ph-sparkle"></i> Pedir explicación</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXAM -->
+      <section id="v-exam" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Simulacro (demo)</h2>
+            <p>1 pregunta a la vez + cronómetro + reporte.</p>
+          </div>
+          <div class="pillrow">
+            <div class="pill"><i class="ph-fill ph-timer" style="color:var(--primary)"></i> Tiempo <strong id="examTimePill">12:00</strong></div>
+            <div class="pill"><i class="ph-fill ph-list-checks" style="color:var(--olive)"></i> Items <strong id="examCountPill">10</strong></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="examhead">
+            <div class="progress"><div id="examProg"></div></div>
+            <div class="timer"><i class="ph-fill ph-timer"></i> <span id="examTimer">12:00</span></div>
+            <button class="btn ghost" onclick="stopExam(true)"><i class="ph-bold ph-x"></i> Terminar</button>
+          </div>
+
+          <div id="examBox" class="qbox"></div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px;">
+            <button class="btn ghost" onclick="prevExamQ()"><i class="ph-bold ph-arrow-left"></i> Atrás</button>
+            <button class="btn" onclick="nextExamQ()"><i class="ph-bold ph-arrow-right"></i> Siguiente</button>
+          </div>
+        </div>
+
+        <div id="examResult" class="card" style="margin-top: 14px; display:none;">
+          <h3><i class="ph-bold ph-medal"></i> Resultado</h3>
+          <div class="two-col" style="margin-top: 10px;">
+            <div class="stat"><div class="l"><i class="ph-fill ph-check-circle" style="color:var(--success)"></i><div class="k">Aciertos</div></div><div class="v" id="resOk">0</div></div>
+            <div class="stat"><div class="l"><i class="ph-fill ph-x-circle" style="color:var(--danger)"></i><div class="k">Errores</div></div><div class="v" id="resBad">0</div></div>
+          </div>
+          <div style="margin-top: 12px;">
+            <canvas id="examChart" height="110"></canvas>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px;">
+            <button class="btn" onclick="go('errors'); renderErrors()"><i class="ph-bold ph-warning-circle"></i> Revisar errores</button>
+            <button class="btn ghost" onclick="startExam()"><i class="ph-bold ph-arrow-counter-clockwise"></i> Repetir</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ERRORS -->
+      <section id="v-errors" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Errores</h2>
+            <p>Revisión inteligente: dato clave + trampa frecuente.</p>
+          </div>
+          <div class="pillrow">
+            <div class="pill"><i class="ph-fill ph-warning" style="color:var(--danger)"></i> Guardados <strong id="errCount">0</strong></div>
+            <button class="btn ghost" onclick="clearErrors()"><i class="ph-bold ph-trash"></i> Limpiar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><i class="ph-bold ph-sparkle"></i> ROMI Asistente</h3>
+          <p class="muted">Detecta patrones de error y te da reglas rápidas.</p>
+          <div id="errorList" style="margin-top: 12px; display:flex; flex-direction:column; gap: 12px;"></div>
+        </div>
+      </section>
+
+      <!-- PLAN -->
+      <section id="v-plan" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Plan semanal</h2>
+            <p>Plan adaptado a tus áreas débiles (demo).</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3><i class="ph-bold ph-calendar"></i> Generar plan</h3>
+            <div class="form" style="margin-top: 10px;">
+              <div class="row">
+                <input class="txt" id="hoursInput" type="number" min="2" max="80" value="10" placeholder="Horas por semana" />
+                <input class="txt" id="dateInput" type="date" />
+              </div>
+              <div class="row">
+                <button class="btn" onclick="generatePlan()"><i class="ph-bold ph-magic-wand"></i> Crear plan</button>
+                <button class="btn ghost" onclick="savePlanToLocal()"><i class="ph-bold ph-bookmark"></i> Guardar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><i class="ph-bold ph-list-checks"></i> Tu plan</h3>
+            <div id="planOut" class="muted" style="margin-top: 8px;">Aún no has generado un plan.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VOICE -->
+      <section id="v-voice" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Simulación clínica oral</h2>
+            <p>Responde por voz o texto (demo).</p>
+          </div>
+        </div>
+
+        <div class="voice">
+          <div class="top">
+            <div>
+              <small>Sesión segura · ROMI</small>
+              <div style="font-weight:900; margin-top:4px;">Caso clínico oral</div>
+            </div>
+            <span class="tag" style="background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.18); color:white;">
+              <i class="ph-fill ph-shield-check"></i> Evaluación
+            </span>
+          </div>
+
+          <div>
+            <div class="ava"><i class="ph-fill ph-robot"></i></div>
+            <div class="prompt" id="voicePrompt">
+              Paciente masculino de 45 años con cefalea súbita intensa “el peor dolor de su vida”.
+              Dime: ¿tu primera sospecha diagnóstica y cuál es el siguiente paso inmediato?
+            </div>
+            <div class="wave" id="wave">
+              <div class="bar" style="animation-delay:.05s"></div>
+              <div class="bar" style="animation-delay:.12s"></div>
+              <div class="bar" style="animation-delay:.20s"></div>
+              <div class="bar" style="animation-delay:.28s"></div>
+              <div class="bar" style="animation-delay:.36s"></div>
+            </div>
+
+            <div style="margin-top: 14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+              <input class="txt" id="voiceText" placeholder="O escribe tu respuesta aquí..." style="max-width: 520px;">
+              <button class="btn" onclick="submitOralText()"><i class="ph-bold ph-paper-plane-tilt"></i> Enviar</button>
+            </div>
+            <div id="oralFeedback" style="margin-top: 14px; display:none;" class="qbox"></div>
+          </div>
+
+          <div class="actions">
+            <button class="circle ghost" onclick="speakPrompt()" title="Escuchar caso"><i class="ph-bold ph-speaker-high"></i></button>
+            <button class="circle mic" id="micBtn" onclick="toggleMic()" title="Responder por voz"><i class="ph-fill ph-microphone"></i></button>
+            <button class="circle end" onclick="newOralCase()" title="Nuevo caso"><i class="ph-bold ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TUTOR -->
+      <section id="v-tutor" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Tutor IA</h2>
+            <p>Chat demo (conecta IA después).</p>
+          </div>
+          <div class="pillrow">
+            <button class="btn ghost" onclick="seedTutoring()"><i class="ph-bold ph-sparkle"></i> Sugerir tema</button>
+          </div>
+        </div>
+
+        <div class="chat">
+          <div class="chat-head">
+            <div class="who">
+              <div class="ax"><i class="ph-bold ph-robot"></i></div>
+              ROMI Tutor
+            </div>
+            <span class="tag"><i class="ph-fill ph-shield-check"></i> Orientativo</span>
+          </div>
+          <div class="chat-body" id="chatBody">
+            <div class="msg ai">Hola. Soy ROMI Tutor. Dime el tema y te doy explicación + trampas frecuentes.</div>
+          </div>
+          <div class="chat-foot">
+            <input class="input" id="chatInput" placeholder="Escribe tu duda..." />
+            <button class="btn" onclick="sendTutor()"><i class="ph-bold ph-paper-plane-tilt"></i> Enviar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section id="v-analytics" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Analytics</h2>
+            <p>Progreso + desempeño por sistema (demo).</p>
+          </div>
+          <div class="pillrow">
+            <button class="btn ghost" onclick="renderAnalytics()"><i class="ph-bold ph-arrow-counter-clockwise"></i> Actualizar</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3><i class="ph-bold ph-chart-line-up"></i> Progreso (7 días)</h3>
+            <canvas id="progChart" height="130"></canvas>
+          </div>
+          <div class="card">
+            <h3><i class="ph-bold ph-chart-donut"></i> Por sistema</h3>
+            <canvas id="sysChart" height="130"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="v-settings" class="view">
+        <div class="topbar">
+          <div class="title">
+            <h2>Ajustes</h2>
+            <p>Demo local (stub de IA).</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3><i class="ph-bold ph-plugs-connected"></i> Conexión IA (stub)</h3>
+            <div class="form" style="margin-top: 10px;">
+              <input class="txt" id="apiBase" placeholder="API Base URL" />
+              <input class="txt" id="apiKey" placeholder="API Key (opcional)" />
+              <button class="btn" onclick="saveApi()"><i class="ph-bold ph-floppy-disk"></i> Guardar</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><i class="ph-bold ph-database"></i> Datos demo</h3>
+            <div style="margin-top: 10px; display:flex; gap: 10px; flex-wrap:wrap;">
+              <button class="btn danger" onclick="factoryReset()"><i class="ph-bold ph-warning"></i> Reset total</button>
+              <button class="btn ghost" onclick="awardDemo()"><i class="ph-bold ph-gift"></i> Cargar demo</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right">
+    <div class="stat">
+      <div class="l">
+        <i class="ph-fill ph-fire" style="color:var(--secondary)"></i>
+        <div>
+          <div class="v" id="streakR">0</div>
+          <div class="k">Racha</div>
+        </div>
+      </div>
+      <div class="tag"><i class="ph-fill ph-sparkle"></i> constancia</div>
+    </div>
+
+    <div class="stat">
+      <div class="l">
+        <i class="ph-fill ph-lightning" style="color:var(--primary)"></i>
+        <div>
+          <div class="v" id="xpR">0</div>
+          <div class="k">XP total</div>
+        </div>
+      </div>
+      <div class="tag"><i class="ph-fill ph-target"></i> avance</div>
+    </div>
+
+    <div class="stat">
+      <div class="l">
+        <i class="ph-fill ph-coin" style="color:var(--secondary)"></i>
+        <div>
+          <div class="v" id="coinsR">0</div>
+          <div class="k">Monedas</div>
+        </div>
+      </div>
+      <button class="btn ghost" onclick="go('practice'); openMode('highyield')" style="padding:8px 10px; border-radius: 14px;">
+        <i class="ph-bold ph-plus"></i> Ganar
+      </button>
+    </div>
+
+    <div class="assistant" id="assistantBox">
+      <h4><i class="ph-fill ph-robot" style="color:var(--primary)"></i> ROMI Asistente</h4>
+      <p id="assistantText">Hoy tu foco es: <b>Cardio</b>.</p>
+      <div class="tip" id="assistantTip">Tip: identifica el “dato bisagra” del caso.</div>
+    </div>
+
+    <div class="card" style="padding: 12px;">
+      <h3 style="margin-bottom: 8px;"><i class="ph-bold ph-clipboard-text"></i> Mini-dashboard</h3>
+      <div class="muted">Último set: <b id="lastSet">—</b></div>
+      <div class="muted" style="margin-top:6px;">Área débil: <b id="weakArea">—</b></div>
+      <div style="margin-top: 10px;">
+        <canvas id="miniChart" height="110"></canvas>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    /* ✅ Drawer toggle (nuevo) */
+    function toggleMenu(open){
+      const sb = document.getElementById("sidebar");
+      const ov = document.getElementById("overlay");
+      const isMobile = window.matchMedia("(max-width: 1024px)").matches;
+
+      if(!isMobile) return; // desktop no usa drawer
+
+      if(open){
+        sb.classList.add("open");
+        ov.classList.add("on");
+        document.body.style.overflow = "hidden";
+      }else{
+        sb.classList.remove("open");
+        ov.classList.remove("on");
+        document.body.style.overflow = "auto";
+      }
+    }
+    // Cierra drawer si rotan o cambian tamaño
+    window.addEventListener("resize", ()=> toggleMenu(false));
+
+    /* =======================
+       STATE (localStorage)
+    ======================== */
+    const LS = {
+      state: "romi_med_state_v1",
+      errors: "romi_med_errors_v1",
+      plan: "romi_med_plan_v1",
+      api: "romi_med_api_v1"
+    };
+
+    const defaultState = {
+      streak: 0,
+      xp: 0,
+      coins: 1200,
+      lastActive: null,
+      statsBySystem: {
+        "Cardio": { ok: 0, total: 0 },
+        "Neuro": { ok: 0, total: 0 },
+        "Urgencias": { ok: 0, total: 0 },
+        "Pediatría": { ok: 0, total: 0 },
+        "Gineco": { ok: 0, total: 0 },
+        "Salud Pública": { ok: 0, total: 0 },
+        "Mixto": { ok: 0, total: 0 },
+        "General": { ok: 0, total: 0 }
+      },
+      daily: []
+    };
+
+    function loadState(){
+      try{
+        const s = JSON.parse(localStorage.getItem(LS.state) || "null");
+        return s ? { ...defaultState, ...s } : structuredClone(defaultState);
+      }catch(e){
+        return structuredClone(defaultState);
+      }
+    }
+    function saveState(){
+      localStorage.setItem(LS.state, JSON.stringify(state));
+      syncUI();
+    }
+    function loadErrors(){
+      try{ return JSON.parse(localStorage.getItem(LS.errors) || "[]"); }catch(e){ return []; }
+    }
+    function saveErrors(arr){
+      localStorage.setItem(LS.errors, JSON.stringify(arr));
+    }
+
+    let state = loadState();
+    let errors = loadErrors();
+
+    /* =======================
+       Question Bank (DEMO)
+    ======================== */
+    const Q = [
+      {
+        id: "C1",
+        system: "Cardio",
+        topic: "Arritmias",
+        diff: "Media",
+        stem: "Paciente de 68 años con palpitaciones y disnea. TA 110/70, FC 150 irregular. ECG sin ondas P con ritmo irregular. ¿Manejo inicial si está estable?",
+        options: [
+          "Cardioversión eléctrica inmediata",
+          "Control de frecuencia + anticoagulación según riesgo",
+          "Amiodarona IV y alta",
+          "Atropina IV"
+        ],
+        answer: 1,
+        explain: {
+          base: "FA estable → control de frecuencia y evaluar anticoagulación (CHA2DS2-VASc).",
+          keyPoints: ["Control de frecuencia", "Anticoagulación según riesgo", "Cardioversión si inestable"],
+          commonError: "Ir a cardioversión sin evaluar estabilidad."
+        }
+      }
+    ];
+
+    /* =======================
+       Views
+    ======================== */
+    function go(id, btn){
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById('v-'+id).classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+
+      if(id === "analytics") renderAnalytics();
+      if(id === "errors") renderErrors();
+      if(id === "dashboard") renderMini();
+    }
+
+    function locked(){ alert("Aún no desbloqueado en el demo."); }
+    function jumpToTraining(system){
+      go('practice');
+      document.getElementById('selSystem').value = system === "General" ? "Mixto" : system;
+      startTraining();
+    }
+
+    /* =======================
+       Streak / Daily
+    ======================== */
+    function todayISO(){
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+    function updateStreakOnActivity(){
+      const t = todayISO();
+      if(!state.lastActive){
+        state.streak = 1;
+      }else{
+        const last = new Date(state.lastActive);
+        const cur = new Date(t);
+        const diffDays = Math.round((cur - last) / (1000*60*60*24));
+        if(diffDays === 1) state.streak += 1;
+        else if(diffDays > 1) state.streak = 1;
+      }
+      state.lastActive = t;
+      saveState();
+    }
+    function addDaily(ok, total){
+      const t = todayISO();
+      const idx = state.daily.findIndex(x=>x.d===t);
+      if(idx === -1) state.daily.push({ d:t, ok, total });
+      else { state.daily[idx].ok += ok; state.daily[idx].total += total; }
+    }
+
+    /* =======================
+       Training (demo)
+    ======================== */
+    let training = { mode:"quick", list:[], i:0, locked:false };
+    function openMode(mode){ training.mode = mode; }
+    function startTraining(){
+      training.list = Q.slice(0, 1);
+      training.i = 0;
+      document.getElementById('trainingArea').style.display = "block";
+      renderTrainingQuestion();
+      document.getElementById('lastSet').innerText = "Demo · 1 pregunta";
+    }
+    function resetTrainingUI(){
+      document.getElementById('trainingArea').style.display = "none";
+    }
+    function renderTrainingQuestion(){
+      const q = training.list[training.i];
+      document.getElementById('qIndex').innerText = `1/1`;
+      document.getElementById('qSystem').innerText = q.system;
+      document.getElementById('qTopic').innerText = q.topic;
+      document.getElementById('qDiff').innerText = q.diff;
+      document.getElementById('qStem').innerText = q.stem;
+
+      const opts = document.getElementById('qOpts');
+      opts.innerHTML = "";
+      q.options.forEach((txt, idx)=>{
+        const el = document.createElement('div');
+        el.className = "opt";
+        el.onclick = ()=> answerTraining(idx);
+        el.innerHTML = `<div class="key">${String.fromCharCode(65+idx)}</div><div>${escapeHtml(txt)}</div>`;
+        opts.appendChild(el);
+      });
+      document.getElementById('qFeedback').classList.remove('show');
+      training.locked = false;
+    }
+    function answerTraining(picked){
+      if(training.locked) return;
+      training.locked = true;
+
+      updateStreakOnActivity();
+      const q = training.list[training.i];
+      const ok = picked === q.answer;
+
+      const xpGain = ok ? 25 : 8;
+      const coinGain = ok ? 12 : 4;
+      state.xp += xpGain;
+      state.coins += coinGain;
+      addDaily(ok?1:0, 1);
+      saveState();
+
+      const opts = [...document.querySelectorAll('#qOpts .opt')];
+      opts.forEach((el, idx)=>{
+        if(idx === q.answer) el.classList.add('correct');
+        if(idx === picked && !ok) el.classList.add('wrong');
+        el.onclick = null;
+      });
+
+      const fb = document.getElementById('qFeedback');
+      const fbTitle = document.getElementById('fbTitle');
+      const fbLabel = document.getElementById('fbLabel');
+      const fbBody = document.getElementById('fbBody');
+      fbTitle.classList.toggle('bad', !ok);
+      fbLabel.innerText = ok ? "Correcto" : "Incorrecto";
+
+      fbBody.innerHTML = `
+        <div><b>${ok ? "Bien." : "Ojo."}</b> ${escapeHtml(q.explain.base)}</div>
+        <ul>${q.explain.keyPoints.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+        <div style="margin-top:8px; color: var(--muted); font-size: 12px;">+${xpGain} XP · +${coinGain} monedas</div>
+      `;
+      fb.classList.add('show');
+      renderMini();
+    }
+    function nextQ(){ alert("Demo listo ✅"); }
+    function askRomiOnThis(){ go('tutor'); }
+
+    /* =======================
+       Exam/Errors/Plan/etc.
+       (aquí puedes pegar tu lógica completa de antes;
+        el cambio del menú ya quedó)
+    ======================== */
+    let exam = { timer:null, chart:null };
+    function startExam(){ alert("Simulacro demo."); }
+    function stopExam(){ }
+    function prevExamQ(){ }
+    function nextExamQ(){ }
+    function renderErrors(){
+      errors = loadErrors();
+      document.getElementById('errCount').innerText = String(errors.length);
+      const list = document.getElementById('errorList');
+      list.innerHTML = errors.length ? "" : `<div class="muted">Sin errores guardados todavía.</div>`;
+    }
+    function clearErrors(){ errors=[]; saveErrors(errors); renderErrors(); }
+    function generatePlan(){ document.getElementById('planOut').innerHTML = "Plan demo generado ✅"; }
+    function savePlanToLocal(){ alert("Guardado ✅"); }
+    function speakPrompt(){ }
+    function toggleMic(){ alert("Voz demo."); }
+    function submitOralText(){ alert("Enviado ✅"); }
+    function newOralCase(){ alert("Nuevo caso ✅"); }
+    function seedTutoring(){ }
+    function sendTutor(){ }
+    function renderAnalytics(){ }
+    function saveApi(){ alert("Guardado ✅"); }
+    function factoryReset(){ localStorage.clear(); location.reload(); }
+    function awardDemo(){ state.streak=12; state.xp=3450; state.coins=1580; saveState(); renderMini(); }
+
+    let miniChart = null;
+    function renderMini(){
+      document.getElementById('weakArea').innerText = "—";
+      const ctx = document.getElementById('miniChart').getContext('2d');
+      if(miniChart) miniChart.destroy();
+      miniChart = new Chart(ctx, {
+        type:'bar',
+        data:{ labels:["L","M","X","J","V"], datasets:[{ data:[20,40,60,30,50], borderRadius: 8 }] },
+        options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, max:100 } } }
+      });
+    }
+
+    function syncUI(){
+      document.getElementById('streakP').innerText = String(state.streak);
+      document.getElementById('xpP').innerText = String(state.xp);
+      document.getElementById('coinsP').innerText = String(state.coins);
+      document.getElementById('streakR').innerText = String(state.streak);
+      document.getElementById('xpR').innerText = String(state.xp);
+      document.getElementById('coinsR').innerText = String(state.coins);
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function init(){
+      const d = new Date(); d.setDate(d.getDate()+90);
+      document.getElementById('dateInput').value = d.toISOString().slice(0,10);
+      syncUI();
+      renderMini();
+      renderErrors();
+    }
+    init();
+  </script>
+</body>
+</html>

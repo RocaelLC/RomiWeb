@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>ROMI® Educación – Copilot Inteligente de Permanencia Escolar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#eef3fb;margin:0;}
+header{background:#073b94;color:white;padding:18px;font-size:22px;font-weight:600;}
+.container{max-width:1200px;margin:auto;padding:24px;}
+
+.selector-box{background:white;padding:20px;border-radius:12px;display:flex;gap:20px;align-items:center;
+box-shadow:0 4px 12px rgba(0,0,0,.12);margin-bottom:20px;border-left:5px solid #073b94;}
+select,input,textarea{padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;font-size:14px;}
+.student-card{display:grid;grid-template-columns:160px 1fr;gap:20px;background:white;padding:25px;
+border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.12);margin-bottom:20px;border-left:5px solid #2481ff;}
+.avatar{width:130px;height:130px;border-radius:50%;background:#d0e3ff;display:flex;justify-content:center;
+align-items:center;font-size:48px;font-weight:bold;color:#073b94;}
+
+.grid-3{display:grid;gap:20px;grid-template-columns:repeat(3,1fr);margin-top:16px;}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+
+.risk-bar{background:#ddd;height:12px;border-radius:5px;margin:8px 0;}
+.risk-fill{background:#ff4b4b;height:100%;width:0%;border-radius:5px;transition:.8s;}
+
+button{padding:11px 14px;border:none;border-radius:7px;cursor:pointer;background:#006CFF;color:white;
+font-size:14px;margin-top:8px;display:flex;align-items:center;gap:8px;font-weight:600;}
+button:hover{opacity:.85}
+.action-btns button{width:100%;margin-bottom:6px;}
+.green{background:#0AA14F}.yellow{background:#FFC107;color:#000}.red{background:#D7263D}
+
+/* IA ANALYSIS */
+#romiThinking{display:none;background:#e8f1ff;padding:12px;border-radius:10px;margin-top:10px;border-left:5px solid #2d7dff;font-style:italic;}
+.loading-dots span{opacity:0;animation:blink 1.5s infinite;}
+.loading-dots span:nth-child(1){animation-delay:0s;}
+.loading-dots span:nth-child(2){animation-delay:.3s;}
+.loading-dots span:nth-child(3){animation-delay:.6s;}
+@keyframes blink{0%,20%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.5);
+justify-content:center;align-items:center;z-index:100;}
+.modal{background:white;padding:25px;border-radius:12px;max-width:450px;width:90%;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+.modal input,.modal select{margin-top:5px;margin-bottom:10px;}
+
+/* Sparkline */
+.sparkline{height:40px;width:100%;display:flex;gap:2px;align-items:flex-end;margin-top:10px;}
+.sparkbar{width:16px;background:#4c8eff;border-radius:3px;animation:grow 1s forwards;}
+@keyframes grow{from{height:0;}}
+
+/* Footer */
+footer{text-align:center;padding:18px;font-size:14px;color:#555;background:white;margin-top:40px;}
+footer a{color:#073b94;font-weight:bold;text-decoration:none;}
+
+.section-title {margin-top:15px;font-size:15px;font-weight:bold;color:#0d2d6d;border-left:4px solid #2d7dff;padding-left:8px;}
+</style>
+</head>
+
+<body>
+<header>ROMI® Educación — Copilot Inteligente de Permanencia Escolar</header>
+
+<div class="container">
+
+<div class="selector-box">
+<strong>Estudiante:</strong>
+<select id="studentSelect" onchange="loadStudent()">
+<option value="">-- Seleccionar --</option>
+<option value="juan">Juan Pérez</option>
+<option value="maria">María López</option>
+<option value="carlos">Carlos Hernández</option>
+</select>
+</div>
+
+<div id="panel" style="display:none;">
+
+<div class="student-card">
+<div class="avatar" id="avatar">👤</div>
+<div>
+
+<label>Nombre</label><input id="name">
+
+<label>Promedio</label><input id="prom" type="number" step="0.1" min="0" max="10">
+
+<label>Zona</label>
+<select id="zona">
+<option>Urbana</option>
+<option>Rural</option>
+<option>Zona Vulnerable</option>
+<option>Comunidad Indígena</option>
+</select>
+
+<label>Observaciones generales</label>
+<textarea id="obs"></textarea>
+
+<!-- NUEVOS CAMPOS SOCIALES MÉXICO -->
+<div class="section-title">Contexto socioeconómico</div>
+
+<label>¿El estudiante trabaja?</label>
+<select id="trabajo">
+<option>No</option>
+<option>Sí, medio tiempo</option>
+<option>Sí, tiempo completo</option>
+</select>
+
+<label>Horas de trabajo a la semana</label>
+<input id="horasTrabajo" type="number" min="0" max="80">
+
+<label>Responsabilidades familiares (cuidado)</label>
+<select id="cuida">
+<option>No</option><option>Sí, ocasionalmente</option><option>Sí, regularmente</option>
+</select>
+
+<div class="section-title">Acceso y transporte</div>
+
+<label>Medio de transporte</label>
+<select id="transporte">
+<option>Caminando</option><option>Bicicleta</option><option>Transporte público</option><option>Vehículo familiar</option><option>Otro</option>
+</select>
+
+<label>Tiempo de traslado (min)</label>
+<input id="traslado" type="number">
+
+<label>Acceso a internet</label>
+<select id="internet"><option>Sí</option><option>No</option><option>Intermitente</option></select>
+
+<label>Acceso a dispositivo</label>
+<select id="dispositivo">
+<option>Computadora personal</option>
+<option>Computadora compartida</option>
+<option>Solo celular</option>
+<option>No tiene acceso</option>
+</select>
+
+<div class="section-title">Bienestar y seguridad</div>
+
+<label>Apoyo familiar percibido</label>
+<select id="apoyoFamiliar"><option>Alto</option><option>Medio</option><option>Bajo</option><option>Nulo</option></select>
+
+<label>Estado emocional reportado</label>
+<select id="emocional">
+<option>Estable</option>
+<option>Estrés / ansiedad</option>
+<option>Tristeza / desmotivación</option>
+<option>Requiere apoyo emocional</option>
+</select>
+
+<label>Experiencias de bullying o violencia</label>
+<select id="bullying">
+<option>No</option><option>Víctima</option><option>Testigo</option><option>Mixto</option>
+</select>
+
+<label>Condición de salud / discapacidad</label>
+<select id="salud">
+<option>Ninguna</option>
+<option>Condición médica crónica</option>
+<option>Discapacidad física</option>
+<option>Discapacidad sensorial</option>
+<option>Otra</option>
+</select>
+
+<button onclick="save()">💾 Guardar datos</button>
+
+</div>
+</div>
+
+<div class="grid-3">
+
+<div class="card">
+<h3>Riesgo de abandono 📊</h3>
+<div class="risk-bar"><div class="risk-fill" id="riskBar"></div></div>
+<p id="riskTxt"><b>--%</b></p>
+<button onclick="predict()">🔍 Analizar con IA</button>
+<div id="romiThinking">ROMI está analizando <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></div>
+<div id="iaSug" style="font-size:13px;margin-top:10px;color:#073b94;font-weight:600;"></div>
+<button onclick="romiInsight()">🧠 Insight profesional</button>
+<button onclick="audioDemo()">🔊 Escuchar análisis</button>
+</div>
+
+<div class="card">
+<h3>Acciones 🫂</h3>
+<div class="action-btns">
+<button class="green" onclick="openModal('tutor')">🤝 Tutoría</button>
+<button class="yellow" onclick="openModal('familia')">☎️ Contacto familia</button>
+<button class="red" onclick="openModal('social')">🏫 Trabajo social</button>
+<button onclick="openModal('beca')">🎓 Becas</button>
+<button onclick="openModal('calendar')">📅 Agenda</button>
+</div>
+</div>
+
+<div class="card">
+<h3>Trayectoria académica 📈</h3>
+<div class="sparkline">
+<div class="sparkbar" style="height:40px"></div>
+<div class="sparkbar" style="height:22px"></div>
+<div class="sparkbar" style="height:30px"></div>
+<div class="sparkbar" style="height:15px"></div>
+<div class="sparkbar" style="height:34px"></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="modal-bg" id="modal-bg">
+<div class="modal" id="modalContent"></div>
+</div>
+
+<footer>
+ROMI® — Inteligencia Médica & Educativa<br>
+<a href="https://romiai.com.mx/" target="_blank">https://romiai.com.mx/</a>
+</footer>
+
+<script>
+const data={
+juan:{n:"Juan Pérez",p:7.2,z:"Urbana",o:"Faltas frecuentes"},
+maria:{n:"María López",p:9.1,z:"Urbana",o:"Sin incidencias"},
+carlos:{n:"Carlos Hernández",p:6.0,z:"Rural",o:"Apoyo emocional recomendado"}
+};
+
+let cita={fecha:null,hora:null};
+
+function loadStudent(){
+const id=studentSelect.value;if(!id){panel.style.display="none";return;}
+const s=data[id];
+panel.style.display="block";
+name.value=s.n;prom.value=s.p;zona.value=s.z;obs.value=s.o;
+avatar.textContent=s.n[0];
+}
+
+function save(){alert("✅ Datos guardados (demo)");}
+
+function predict(){
+let r=100-(parseFloat(prom.value)*10);
+
+if(zona.value!="Urbana")r+=10;
+if(obs.value.toLowerCase().includes("falta"))r+=8;
+if(emocional.value!=="Estable")r+=12;
+if(trabajo.value!=="No")r+=8;
+if(Number(horasTrabajo.value)>20)r+=10;
+if(cuida.value!=="No")r+=8;
+if(apoyoFamiliar.value==="Bajo"||apoyoFamiliar.value==="Nulo")r+=12;
+if(bullying.value!=="No")r+=10;
+if(internet.value!=="Sí")r+=6;
+
+r=Math.min(100,Math.max(0,r));
+
+riskBar.style.width=r+"%";
+riskTxt.innerHTML=`<b>${r.toFixed(0)}%</b>`;
+
+document.getElementById("romiThinking").style.display="block";
+setTimeout(()=>document.getElementById("romiThinking").style.display="none",2000);
+
+iaSug.innerHTML =
+r>70 ? "El análisis sugiere factores académicos y socioemocionales relevantes. Se recomienda acompañamiento integral y comunicación continua." :
+r>40 ? "Se observa un riesgo moderado. Podría fortalecer rutinas, apoyo académico y espacios de escucha." :
+"Se identifican condiciones favorables. Continuar promoviendo motivación, liderazgo y pertenencia.";
+}
+
+function romiInsight(){
+iaSug.innerHTML = `
+📌 <b>Consideraciones profesionales sugeridas:</b><br><br>
+• Fortalecer vínculo escuela–familia<br>
+• Seguimiento emocional y habilidades socioemocionales<br>
+• Reforzar hábitos de estudio y acompañamiento académico<br>
+• Recordatorio de acceso a becas y programas de apoyo<br><br>
+<i>Este análisis busca orientar decisiones educativas, no sustituir criterio docente.</i>
+`;
+}
+
+function audioDemo(){
+alert("🔊 [Simulación] ROMI narraría el análisis.");
+}
+
+function openModal(type){
+let html="";
+if(type==="tutor") html="✅ Tutoría registrada.";
+if(type==="familia") html="📞 Contacto con familia registrado.";
+if(type==="social") html="🏫 Caso enviado a trabajo social.";
+if(type==="beca") html=`🎓 Becas disponibles:<br>• Benito Juárez<br>• Transporte escolar<br>• Alimentación escolar<br>• Apoyo psicológico<br>• Alto rendimiento`;
+if(type==="calendar"){
+html=`
+<h3>📅 Agendar cita</h3>
+<label>Fecha</label><input type="date" id="fechaInput">
+<label>Hora</label><input type="time" id="horaInput">
+<button onclick="guardarCita()">✅ Guardar</button>`;
+if(cita.fecha){
+html+=`<hr><p><b>Cita:</b> ${cita.fecha} — ${cita.hora}</p>
+<button onclick="editarCita()">✏️ Reagendar</button>
+<button onclick="cancelarCita()">❌ Cancelar</button>`;
+}
+}
+modalContent.innerHTML=html+`<br><button onclick="closeModal()">Cerrar</button>`;
+document.getElementById("modal-bg").style.display="flex";
+}
+
+function closeModal(){document.getElementById("modal-bg").style.display="none";}
+function guardarCita(){cita.fecha=document.getElementById("fechaInput").value;cita.hora=document.getElementById("horaInput").value;alert("✅ Cita programada");closeModal();}
+function editarCita(){openModal('calendar');}
+function cancelarCita(){cita={fecha:null,hora:null};alert("🗑️ Cita cancelada");closeModal();}
+</script>
+</body>
+</html>

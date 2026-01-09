@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>NutriSnap · Demo UIX (1 archivo)</title>
+<meta name="description" content="NutriSnap: demo todo-en-uno con analizador por foto (simulado), macros, plan semanal y buscador estilo USDA con carrito y UIX pro." />
+<meta name="theme-color" content="#0d1222" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline'">
+
+<style>
+/* ================= TOKENS / THEME ================= */
+:root{
+  --bg:#0b1022; --surface:#0e1530; --card:#141a2f; --card-2:#101735;
+  --text:#eef3ff; --muted:#b6bfdf; --muted-2:#94a0cc;
+  --accent:#66f3c0; --accent-2:#7fd2ff; --accent-3:#c6a5ff;
+  --ok:#23d18b; --warn:#ffd166; --danger:#ff6b6b;
+  --glass:rgba(255,255,255,.06); --glass-2:rgba(255,255,255,.09);
+  --blur: 18px; --r2xl:24px; --rxl:20px; --rlg:16px; --rmd:12px;
+  --shadow:0 18px 40px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.25);
+  --shadow-soft:0 10px 26px rgba(0,0,0,.35);
+  --ring: 0 0 0 3px rgba(127,210,255,.28);
+}
+[data-theme="light"]{
+  --bg:#f6f8ff; --surface:#eef3ff; --card:#ffffff; --card-2:#f6f8ff;
+  --text:#0b1022; --muted:#475072; --muted-2:#5b658b;
+  --accent:#0ccda3; --accent-2:#0077ff; --accent-3:#7b5cff;
+  --glass:rgba(0,0,0,.06); --glass-2:rgba(0,0,0,.09);
+  --shadow:0 18px 40px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.06);
+  --shadow-soft:0 10px 26px rgba(0,0,0,.08);
+  --ring: 0 0 0 3px rgba(0,119,255,.18);
+}
+
+/* ================= BASE ================= */
+*,*::before,*::after{ box-sizing:border-box }
+html{ scroll-behavior:smooth }
+html,body{ height:100% }
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Arial;
+  color:var(--text);
+  line-height:1.45;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(1100px 700px at 82% -10%, rgba(127,210,255,.16), transparent 60%),
+    radial-gradient(900px 700px at -10% 40%, rgba(102,243,192,.14), transparent 60%),
+    linear-gradient(180deg, var(--surface), var(--bg));
+}
+a{ color:inherit; text-decoration:none }
+:focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; border-radius:12px; box-shadow: var(--ring); }
+.container{ max-width:1160px; margin:0 auto; padding: clamp(18px,3vw,28px) }
+
+/* ================= UTILS ================= */
+.badge{ display:inline-flex; gap:.5rem; align-items:center; padding:.48rem .85rem; border-radius:999px; font-weight:700; letter-spacing:.2px;
+  background:linear-gradient(135deg,var(--glass), transparent); border:1px solid rgba(255,255,255,.08); color:var(--muted);
+  backdrop-filter:saturate(140%) blur(var(--blur));
+}
+.badge svg{ width:18px; height:18px }
+.btn{ cursor:pointer; border:0; border-radius:var(--rlg);
+  padding: clamp(12px,3.5vw,14px) clamp(14px,4vw,18px);
+  font-weight:800; letter-spacing:.3px; font-size:15px; transition:transform .12s ease, opacity .12s ease, filter .12s ease; }
+.btn:active{ transform: translateY(1px) scale(.99) }
+.btn:disabled{ opacity:.55; cursor:not-allowed; filter:saturate(.7) }
+.btn.primary{ background:linear-gradient(135deg,var(--accent),#53f7d2 60%, var(--accent-2)); color:#0b1022; box-shadow: var(--shadow-soft) }
+.btn.secondary{ background:rgba(255,255,255,.06); color:var(--text); border:1px solid rgba(255,255,255,.10) }
+.btn.ghost{ background:transparent; border:1px dashed rgba(255,255,255,.16); color:var(--muted) }
+
+.card{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--rxl); padding:16px; box-shadow: var(--shadow) }
+.card.soft{ border-radius:var(--r2xl); background:linear-gradient(180deg, var(--card), var(--card-2)); border-color: rgba(255,255,255,.08) }
+.row{ display:grid; grid-template-columns:repeat(12,1fr); gap:14px }
+.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+.muted{ color:var(--muted) }
+.kbd{ font: 600 12px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background:rgba(255,255,255,.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.12); display:inline-block }
+
+.grid{ display:grid; gap:16px }
+.grid.cols-2{ grid-template-columns:1fr 1fr }
+.grid.cols-3{ grid-template-columns:repeat(3,1fr) }
+.center{ display:flex; align-items:center; justify-content:center }
+.pill{ font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(127,210,255,.12); color:var(--accent-2); border:1px solid rgba(127,210,255,.35); font-weight:800 }
+.tag{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); font-size:12px }
+
+/* ================= HEADER / HERO ================= */
+header.hero{ position:relative }
+.grid-hero{ display:grid; gap: clamp(18px,3vw,36px); align-items:center; grid-template-columns: 1.15fr .85fr; }
+.title{ font-size: clamp(30px,6vw,58px); line-height:1.06; margin:.35rem 0 1rem; letter-spacing:-.6px }
+.subtitle{ font-size: clamp(16px,2.2vw,20px); color:var(--muted) }
+.hero-card{ border-radius:var(--r2xl); padding:18px; box-shadow: var(--shadow);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.1) }
+.phone{ width:100%; aspect-ratio:9/16; background:var(--card); border-radius:26px; border:1px solid rgba(255,255,255,.1); position:relative; overflow:hidden }
+.phone .bar{ height:34px; background:linear-gradient(90deg, rgba(255,255,255,.06), transparent); border-bottom:1px solid rgba(255,255,255,.08) }
+.feed{ padding:14px; display:flex; flex-direction:column; gap:12px }
+.chip{ align-self:flex-start; background:rgba(109,245,180,.12); color:var(--accent); border:1px solid rgba(109,245,180,.35); padding:6px 10px; border-radius:999px; font-size:12px; font-weight:800 }
+
+/* ================= SECTIONS ================= */
+section{ padding: clamp(28px,6vw,50px) 0 }
+.section-title{ font-size: clamp(22px,3.6vw,32px); margin:0 0 8px }
+.section-sub{ color:var(--muted); margin:0 0 18px }
+
+/* ================= INPUTS ================= */
+label small{ font-size: 11px; color: var(--muted); display:block; margin-top:3px }
+.input, select, textarea{
+  width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; color:var(--text);
+  padding:12px 14px; outline:none; font-size:15px; margin-top: 4px; transition:border-color .12s ease, background .12s ease
+}
+.input::placeholder{ color:#bac1de77 }
+.input:focus, select:focus{ border-color: rgba(127,210,255,.55) }
+
+/* ================= INTERACTIVOS ================= */
+.drop{ border:1.8px dashed rgba(255,255,255,.25); border-radius:16px; padding:18px; text-align:center; background:rgba(255,255,255,.04); transition:.15s ease all }
+.drop.drag{ background:rgba(127,210,255,.10); border-color:var(--accent-2); box-shadow: var(--ring) }
+.spark{ height:48px; width:100% }
+.legend{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:12px }
+.dot{ display:inline-block; width:10px; height:10px; border-radius:50% }
+.dot.green{ background:var(--ok) } .dot.blue{ background:var(--accent-2) } .dot.amber{ background:var(--warn) }
+
+/* ================= ASSISTANT ================= */
+.fab{ position:fixed; right:16px; bottom:16px; width:64px; height:64px; border-radius:50%; display:grid; place-items:center;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow:0 18px 40px rgba(35,209,139,.55); cursor:pointer; z-index:50 }
+.fab svg{ width:30px; height:30px; fill:#0b1322 }
+.assistant{ position:fixed; right:16px; bottom:92px; width:min(440px, 94vw); max-height:70vh;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.12); border-radius:20px; box-shadow: var(--shadow);
+  overflow:hidden; display:none; z-index:60
+}
+.assistant header{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; background:rgba(0,0,0,.18); border-bottom:1px solid rgba(255,255,255,.07) }
+.assistant main{ padding:12px; display:flex; flex-direction:column; gap:10px; overflow:auto; max-height:48vh }
+.bubble{ max-width:80%; padding:10px 12px; border-radius:14px; font-size:14px; word-wrap:break-word }
+.bubble.me{ align-self:flex-end; background:linear-gradient(135deg, rgba(142,246,160,.18), rgba(127,210,255,.18)); border:1px solid rgba(255,255,255,.1) }
+.bubble.ai{ align-self:flex-start; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.09) }
+.assistant footer{ padding:12px; display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.08); flex-direction:column }
+.quick-row{ display:flex; flex-wrap:wrap; gap:8px }
+.quick{ border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); padding:8px 10px; border-radius:999px; font-size:12px; cursor:pointer }
+.toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:24px; background:rgba(20,26,47,.9); color:#fff; padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.15); z-index:70; display:none }
+
+/* ================= FOOTER ================= */
+footer{ padding:34px 0; color:var(--muted) }
+
+/* ================= MOBILE ================= */
+@media (max-width: 980px){
+  .grid-hero{ grid-template-columns:1fr }
+  .grid.cols-3{ grid-template-columns:1fr }
+  .grid.cols-2{ grid-template-columns:1fr }
+  .hero-card{ padding:14px }
+}
+@media (prefers-reduced-motion: reduce){
+  .btn, html{ transition: none; scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV LITE -->
+<div class="container" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:16px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--accent), var(--accent-2));"></div>
+    <strong>NutriSnap</strong>
+  </div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <button id="themeToggle" class="btn ghost" title="Cambiar tema" aria-label="Cambiar tema">🌙/☀️</button>
+    <a href="#demo" class="btn secondary">Probar demo</a>
+  </div>
+</div>
+
+<header class="hero container">
+  <div class="grid-hero">
+    <div>
+      <span class="badge" aria-label="Demo UIX en vivo">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2c.9 0 1.7.5 2.1 1.3l.9 1.8c.2.5.7.8 1.2.9l2 .3c.9.1 1.6.7 1.9 1.6.2.8 0 1.7-.6 2.3l-1.5 1.5c-.4.4-.5 1-.4 1.6l.4 2c.2.9-.1 1.8-.8 2.3-.7.5-1.6.6-2.4.2l-1.9-.9c-.5-.2-1.1-.2-1.6 0l-1.9.9c-.8.4-1.7.3-2.4-.2-.7-.5-1-1.4-.8-2.3l.4-2c.1-.6 0-1.2-.4-1.6L5.5 10c-.6-.6-.8-1.5-.6-2.3.3-.9 1-1.5 1.9-1.6l2-.3c.5-.1 1-.4 1.2-.9l.9-1.8C10.3 2.5 11.1 2 12 2z" fill="currentColor"/></svg>
+        NutriSnap · Demo UIX en vivo
+      </span>
+      <h1 class="title">Comer bien, decidir fácil.<br/>Lleva tus hábitos con
+        <span style="background: linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3)); -webkit-background-clip:text; background-clip:text; color:transparent;">Inteligencia Nutricional</span>.
+      </h1>
+      <p class="subtitle">Analiza fotos (simulado), busca alimentos estilo USDA, arma tu plato por gramos, calcula macros y genera un plan semanal. Todo en un solo archivo, listo para cPanel.</p>
+      <div class="cta">
+        <button class="btn primary" id="btnEmpezar">Probar demo</button>
+        <button class="btn secondary" type="button" onclick="document.getElementById('features').scrollIntoView()">Ver funcionalidades</button>
+      </div>
+      <div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <span class="tag">⚡ Micro-interacciones</span>
+        <span class="tag">🔎 Buscador + filtros</span>
+        <span class="tag">🍽️ Carrito y totales</span>
+        <span class="tag">🧮 Gráfico de macros</span>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="feed">
+          <span class="chip">NutriSnap Assistant</span>
+          <div class="card soft">
+            <div class="muted" style="font-size:13px; margin-bottom:6px">Sugerencia de hoy</div>
+            <div style="font-weight:900; font-size:18px">Plato 50/25/25</div>
+            <div class="muted" style="margin-top:4px">50% verduras, 25% proteína magra, 25% carbo integral + 1 cda de grasa saludable.</div>
+          </div>
+          <div class="card soft">
+            <div class="row">
+              <div class="col-6">
+                <div class="muted" style="font-size:12px">Calorías restantes</div>
+                <div style="font-size:26px; font-weight:900">1,240</div>
+              </div>
+              <div class="col-6">
+                <div class="muted" style="font-size:12px">Vasos de agua</div>
+                <div style="font-size:26px; font-weight:900">5/8</div>
+              </div>
+              <div class="col-12">
+                <svg class="spark" viewBox="0 0 100 12" preserveAspectRatio="none">
+                  <polyline points="0,9 10,7 20,8 30,6 40,5 50,7 60,4 70,6 80,3 90,4 100,2" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <div class="legend"><span class="dot green"></span>Consumo · <span class="dot blue"></span>Objetivo · <span class="dot amber"></span>Advertencias</div>
+              </div>
+            </div>
+          </div>
+          <div class="card soft center" style="gap:10px;">
+            <button class="btn primary" type="button" onclick="openAssistant()">Hablar con el asistente</button>
+            <button class="btn secondary" type="button" onclick="document.getElementById('demo').scrollIntoView()">Ir a la demo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="features" class="container">
+  <h2 class="section-title">Funciones clave</h2>
+  <p class="section-sub">Todo lo necesario para comer mejor — sin complicaciones, y bonito.</p>
+  <div class="grid cols-3">
+    <div class="card soft">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>Analiza tu plato por foto</strong><span class="pill">Demo IA</span></header>
+      <p class="muted">Arrastra una foto y estimamos ingredientes, calorías, macros y micros (simulado para demo).</p>
+    </div>
+    <div class="card soft">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>Buscador de alimentos</strong><span class="pill">Estilo USDA</span></header>
+      <p class="muted">Explora un catálogo editable; filtra por grupo, agrega por gramos al plato y ve totales en tiempo real.</p>
+    </div>
+    <div class="card soft">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>Plan semanal</strong><span class="pill">Generador</span></header>
+      <p class="muted">Calendario con desayunos, comidas y cenas. Totalmente editable.</p>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="container">
+  <h2 class="section-title">Demo interactiva</h2>
+  <p class="section-sub">Analizador por foto, cálculo de macros, plan, hábitos, buscador con carrito y gráfico.</p>
+  <div class="grid cols-2">
+
+    <!-- 1) Foto (SIM) -->
+    <div class="card">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>1) Analizador de alimentos (foto)</strong><span class="pill">Prototipo</span></header>
+      <div id="drop" class="drop" tabindex="0" role="button" aria-label="Subir o arrastrar imagen de comida">
+        <p style="margin:0 0 8px">Arrastra una foto o <label class="kbd" for="fileFood">toca aquí</label> <span class="muted">(demo)</span></p>
+        <input id="fileFood" type="file" accept="image/*" capture="environment" style="display:none" />
+        <canvas id="preview" width="540" height="300" style="width:100%; border-radius:14px; display:none"></canvas>
+        <div id="foundTags" style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;"></div>
+      </div>
+      <div id="foodReport" class="card soft" style="margin-top:12px; display:none" aria-live="polite"></div>
+    </div>
+
+    <!-- 2) Macros -->
+    <div class="card">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>2) Calcula tus macros</strong><span class="pill">TDEE</span></header>
+      <div class="grid cols-2">
+        <div><label for="w">Peso (kg)<small>Actual</small></label><input class="input" id="w" type="number" min="30" max="250" placeholder="67"></div>
+        <div><label for="h">Altura (cm)<small>Centímetros</small></label><input class="input" id="h" type="number" min="120" max="230" placeholder="172"></div>
+        <div><label for="age">Edad<small>Años</small></label><input class="input" id="age" type="number" min="12" max="90" placeholder="25"></div>
+        <div><label for="sex">Sexo biológico<small>Fórmula</small></label><select class="input" id="sex"><option value="m">Masculino</option><option value="f">Femenino</option></select></div>
+        <div><label for="act">Actividad<small>Semanal</small></label><select class="input" id="act"><option value="1.2">Sedentario</option><option value="1.375">Ligero (1–3 d/sem)</option><option value="1.55">Moderado (3–5 d/sem)</option><option value="1.725">Intenso (6–7 d/sem)</option></select></div>
+        <div><label for="goal">Objetivo<small>Meta</small></label><select class="input" id="goal"><option value="-0.15">Bajar grasa (-15%)</option><option value="0">Mantener</option><option value="0.15">Ganar masa (+15%)</option></select></div>
+      </div>
+      <div class="cta" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn primary" id="btnCalc" type="button">Calcular</button>
+        <button class="btn secondary" id="btnSample" type="button">Usar ejemplo</button>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div class="col-8">
+          <div id="macroOut" class="card soft" style="display:none" aria-live="polite"></div>
+        </div>
+        <div class="col-4">
+          <svg id="macroRing" viewBox="0 0 120 120" style="width:100%; display:none" aria-label="Anillo de macros">
+            <!-- fondo -->
+            <circle cx="60" cy="60" r="48" stroke="rgba(255,255,255,.14)" stroke-width="18" fill="none"/>
+            <!-- segmentos dinámicos -->
+            <g id="ringSegs"></g>
+            <!-- centro -->
+            <circle cx="60" cy="60" r="28" fill="url(#gradCenter)"/>
+            <defs>
+              <radialGradient id="gradCenter">
+                <stop offset="0%" stop-color="var(--accent)"/>
+                <stop offset="100%" stop-color="var(--accent-2)"/>
+              </radialGradient>
+            </defs>
+            <text id="macroRingTxt" x="60" y="64" text-anchor="middle" font-size="10" fill="var(--bg)" font-weight="800"></text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3) Buscador + Carrito -->
+    <div class="card">
+      <header style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">
+        <strong>3) Buscador de alimentos</strong><span class="pill">Catálogo local</span>
+      </header>
+      <div class="grid">
+        <div class="row">
+          <div class="col-8">
+            <label for="fdcQuery">Buscar alimento<small>Ej.: manzana, arroz, tortilla, frijol</small></label>
+            <input class="input" id="fdcQuery" placeholder="Escribe y presiona Enter… (⌘/Ctrl+K para enfocar)">
+          </div>
+          <div class="col-4">
+            <label for="fdcGroup">Filtrar por grupo<small>Todos por defecto</small></label>
+            <select class="input" id="fdcGroup">
+              <option value="">Todos los grupos</option>
+              <option>Fruta</option>
+              <option>Verdura</option>
+              <option>Cereal</option>
+              <option>Proteína</option>
+              <option>Lácteo</option>
+              <option>Leguminosa</option>
+              <option>Grasa</option>
+              <option>Azúcares</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn primary" id="fdcSearch" type="button">Buscar</button>
+          <button class="btn secondary" id="toggleFavs" type="button">★ Favoritos</button>
+          <button class="btn ghost" id="resetSearch" type="button">Limpiar</button>
+        </div>
+        <div id="fdcResults" class="card soft" style="display:none"></div>
+
+        <div class="card soft" style="margin-top:8px">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <strong>Plato (acumulado)</strong>
+            <div style="display:flex; gap:8px; flex-wrap:wrap">
+              <button class="btn secondary" id="undoPlate" type="button" title="Deshacer (Ctrl+Z)">↶ Deshacer</button>
+              <button class="btn secondary" id="sharePlate" type="button">Compartir/Exportar</button>
+              <button class="btn danger" style="background:linear-gradient(135deg, #ffb3b3, #ff6b6b); color:#1a0f15" id="clearPlate" type="button">Limpiar</button>
+            </div>
+          </div>
+          <div id="plateList" class="muted" style="margin-top:8px">Sin alimentos aún.</div>
+          <div id="plateTotals" style="margin-top:10px; display:none"></div>
+          <!-- barra macros -->
+          <div id="plateBars" style="margin-top:10px; display:none">
+            <div class="muted" style="margin-bottom:6px">Distribución de macros</div>
+            <div style="height:14px; border-radius:10px; border:1px solid rgba(255,255,255,.12); overflow:hidden; background:rgba(255,255,255,.06)">
+              <div id="barProt" style="height:100%; float:left; background:linear-gradient(90deg, #7bf3c6, #3de1b0)"></div>
+              <div id="barCarb" style="height:100%; float:left; background:linear-gradient(90deg, #85c8ff, #59aaff)"></div>
+              <div id="barFat"  style="height:100%; float:left; background:linear-gradient(90deg, #e9d07a, #ffd166)"></div>
+            </div>
+            <div class="legend" style="margin-top:6px">
+              <span class="dot green"></span>Proteína · <span class="dot blue" style="background:var(--accent-2)"></span>Carbohidratos · <span class="dot amber"></span>Grasa
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4) Plan + Hábitos -->
+    <div class="card">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>4) Plan semanal + hábitos</strong><span class="pill">Generador</span></header>
+      <div class="grid cols-2" id="weekGrid" aria-live="polite"></div>
+      <div class="cta" style="margin-top:8px"><button class="btn secondary" id="regenPlan" type="button">Regenerar con variaciones</button></div>
+      <div class="grid" style="margin-top:10px">
+        <div class="card soft">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>Hidratación</strong><span class="tag">🔥 Racha: <span id="streak">0</span> días</span>
+          </div>
+          <div class="legend" style="margin-top:6px"><span class="dot blue"></span>Objetivo 8 vasos</div>
+          <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap" id="water"></div>
+        </div>
+        <div class="card soft">
+          <strong>Pasos del día</strong>
+          <svg class="spark" viewBox="0 0 100 12" preserveAspectRatio="none"><polyline id="stepsLine" points="" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="muted" id="stepsTxt">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<footer class="container">
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px">
+    <div>© <span id="year"></span> NutriSnap · Hecho con 💚 para comer mejor</div>
+    <div class="muted">Demo: IA simulada, no usar para decisiones médicas.</div>
+    <div style="width:100%; height:1px; background:rgba(255,255,255,.08); margin-top:10px"></div>
+    <div style="width:100%; text-align:center; font-weight:700; letter-spacing:.2px; margin-top: 10px;">
+      Con la tecnología de <span style="background: linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3)); -webkit-background-clip:text; background-clip:text; color:transparent;">ROMI ®</span>
+    </div>
+  </div>
+</footer>
+
+<!-- FAB Assistant -->
+<button class="fab" id="fab" title="Abrir asistente" aria-label="Abrir asistente">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C7 3 3 6.6 3 11c0 1.9.7 3.7 2 5.1V21l3.3-1.8c1.1.3 2.2.5 3.7.5 5 0 9-3.6 9-8s-4-8-9-8z" fill="currentColor"/></svg>
+</button>
+<div class="assistant" id="assistant" role="dialog" aria-modal="true" aria-labelledby="asstTitle">
+  <header>
+    <div>
+      <div style="font-weight:900" id="asstTitle">NutriSnap Assistant</div>
+      <div class="muted" style="font-size:12px">Tu guía nutricional (simulada)</div>
+    </div>
+    <button class="btn secondary" style="padding:8px 10px; border-radius:10px" type="button" onclick="closeAssistant()">Cerrar</button>
+  </header>
+  <main id="chat"></main>
+  <footer>
+    <div class="quick-row" id="quickRow">
+      <button class="quick">¿Qué puedo cenar con 500 kcal?</button>
+      <button class="quick">Ideas de desayuno rápido</button>
+      <button class="quick">Quiero bajar grasa</button>
+      <button class="quick">Quiero ganar masa</button>
+      <button class="quick">¿Cómo me hidrato mejor?</button>
+      <button class="quick">Genera plan semanal</button>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px">
+      <input class="input" id="msg" placeholder="Pregúntame algo..." aria-label="Escribe tu mensaje" />
+      <button class="btn primary" id="send" type="button">Enviar</button>
+    </div>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ Helpers ============ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const fmt = n => n.toLocaleString('es-MX');
+const clamp = (n,min,max)=> Math.max(min, Math.min(max,n));
+const store = {
+  get: (k, fallback)=> { try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }catch{ return fallback } },
+  set: (k,v)=> { try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+};
+const toast = (msg)=>{ const t = $('#toast'); t.textContent = msg; t.style.display='block'; clearTimeout(window.__toast);
+  window.__toast = setTimeout(()=> t.style.display='none', 2000);
+};
+const YEAR = new Date().getFullYear(); $('#year').textContent = YEAR;
+
+/* ============ Theme Toggle ============ */
+const THEME_KEY = 'ns_theme';
+const applyTheme = (v)=> document.documentElement.setAttribute('data-theme', v);
+applyTheme(store.get(THEME_KEY, (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light':'dark'));
+$('#themeToggle').addEventListener('click', ()=> {
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  const nxt = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(nxt); store.set(THEME_KEY, nxt);
+});
+
+/* CTA principal */
+$('#btnEmpezar').addEventListener('click', ()=> $('#demo').scrollIntoView({behavior:'smooth'}));
+
+/* ============ 1) Foto (SIMULADO) ============ */
+const FOODS_SIM = [
+  {k:'pollo', kcal:165, prot:31, carb:0, fat:3.6, vit_c: 0, iron: 1.3},
+  {k:'arroz integral', kcal:111, prot:2.6, carb:23, fat:0.9, vit_c: 0, iron: 0.5},
+  {k:'ensalada (mix)', kcal:20, prot:1, carb:4, fat:0.2, vit_c: 8, iron: 0.8},
+  {k:'salmón', kcal:208, prot:20, carb:0, fat:13, vit_c: 0, iron: 0.3},
+  {k:'aguacate', kcal:160, prot:2, carb:9, fat:15, vit_c: 10, iron: 0.6},
+  {k:'pasta', kcal:131, prot:5, carb:25, fat:1.1, vit_c: 0, iron: 1.3},
+  {k:'huevo', kcal:78, prot:6, carb:0.6, fat:5, vit_c: 0, iron: 0.6},
+  {k:'manzana', kcal:52, prot:0.3, carb:14, fat:0.2, vit_c: 4.6, iron: 0.1},
+  {k:'tortilla maíz', kcal:58, prot:1.5, carb:12, fat:0.7, vit_c: 0, iron: 0.4},
+  {k:'frijol negro', kcal:127, prot:8.7, carb:22, fat:0.5, vit_c: 0, iron: 2.1}
+];
+const drop = $('#drop'), fileFood = $('#fileFood'), preview = $('#preview'), ctx = preview.getContext('2d');
+const foundTags = $('#foundTags'), foodReport = $('#foodReport');
+
+function analyzeMock(){
+  const picks = [...FOODS_SIM].sort(()=>Math.random()-.5).slice(0, Math.floor(Math.random()*3)+2)
+    .map(f=> ({...f, grams: Math.floor( (Math.random()*140)+60 ) }));
+  const totals = picks.reduce((a,f)=>{
+    const factor = f.grams/100;
+    a.kcal += f.kcal*factor; a.prot += f.prot*factor; a.carb += f.carb*factor; a.fat += f.fat*factor; a.vit_c += f.vit_c*factor; a.iron += f.iron*factor; return a;
+  }, {kcal:0, prot:0, carb:0, fat:0, vit_c:0, iron:0});
+  return {picks, totals};
+}
+function showReport(res){
+  foundTags.innerHTML = '';
+  res.picks.forEach(f=>{
+    const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = `${f.k} · ${f.grams} g`; foundTags.appendChild(tag);
+  });
+  foodReport.style.display='block';
+  const {kcal, prot, carb, fat, vit_c, iron} = res.totals;
+  foodReport.innerHTML = `
+    <div class="row">
+      <div class="col-6"><div class="muted">Calorías estimadas</div><div style="font-size:28px; font-weight:900">${fmt(Math.round(kcal))} kcal</div></div>
+      <div class="col-6"><div class="muted">Macros</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+          <span class="tag">🥩 P: ${Math.round(prot)} g</span><span class="tag">🍞 C: ${Math.round(carb)} g</span><span class="tag">🧈 G: ${Math.round(fat)} g</span>
+        </div>
+      </div>
+      <div class="col-12" style="margin-top: 8px;"><div class="muted">Micronutrientes (Estimados)</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+          <span class="tag">🍊 Vit. C: ${vit_c.toFixed(1)} mg</span><span class="tag">🥬 Hierro: ${iron.toFixed(1)} mg</span>
+        </div>
+      </div>
+      <div class="col-12"><div class="muted" style="margin:6px 0 4px">Sugerencia</div>Equilibra con <strong>verduras fibrosas</strong> y prioriza <strong>proteína magra</strong>. <strong style='color:var(--warn)'>Demo</strong> (no uso clínico).</div>
+    </div>`;
+}
+function drawPreview(img){
+  const W = preview.width, H = preview.height; ctx.clearRect(0,0,W,H);
+  const ratio = Math.min(W/img.width, H/img.height);
+  const w = img.width*ratio, h=img.height*ratio; const x = (W-w)/2, y=(H-h)/2;
+  ctx.drawImage(img,x,y,w,h);
+}
+function handleFile(f){
+  const img = new Image(); img.onload=()=>{ preview.style.display='block'; drawPreview(img); showReport(analyzeMock()); };
+  img.src = URL.createObjectURL(f);
+}
+fileFood.addEventListener('change', e=>{ if(e.target.files[0]) handleFile(e.target.files[0]);});
+drop.addEventListener('click', ()=> fileFood.click());
+drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('drag');}, {passive:false});
+drop.addEventListener('dragleave', ()=> drop.classList.remove('drag'));
+drop.addEventListener('drop', e=>{ e.preventDefault(); drop.classList.remove('drag'); const f = e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+/* ============ 2) TDEE + Macros + Ring ============ */
+function bmr(sex, w, h, age){ return sex==='m' ? (10*w + 6.25*h - 5*age + 5) : (10*w + 6.25*h - 5*age - 161); }
+function drawRing(p,c,f){
+  const ring = $('#macroRing'), segs = $('#ringSegs'), txt = $('#macroRingTxt'); ring.style.display='block'; segs.innerHTML='';
+  const total = p + c + f || 1;
+  const parts = [
+    {val:p, color:'url(#gradP)', label:'P'},
+    {val:c, color:'url(#gradC)', label:'C'},
+    {val:f, color:'url(#gradF)', label:'G'},
+  ];
+  // Gradients inline
+  segs.insertAdjacentHTML('afterbegin', `
+    <defs>
+      <linearGradient id="gradP"><stop offset="0%" stop-color="#7bf3c6"/><stop offset="100%" stop-color="#39e2b0"/></linearGradient>
+      <linearGradient id="gradC"><stop offset="0%" stop-color="#85c8ff"/><stop offset="100%" stop-color="#59aaff"/></linearGradient>
+      <linearGradient id="gradF"><stop offset="0%" stop-color="#ffe08a"/><stop offset="100%" stop-color="#ffd166"/></linearGradient>
+    </defs>
+  `);
+  let angle = 0, r = 48, cx=60, cy=60, sw=18;
+  parts.forEach((s)=>{
+    const frac = s.val/total;
+    const len = 2*Math.PI*r*frac;
+    const dash = `${len} ${2*Math.PI*r}`;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    path.setAttribute('cx',cx); path.setAttribute('cy',cy); path.setAttribute('r',r);
+    path.setAttribute('fill','none'); path.setAttribute('stroke',s.color); path.setAttribute('stroke-width',sw);
+    path.setAttribute('stroke-dasharray', dash);
+    path.setAttribute('transform', `rotate(${(angle*360)} ${cx} ${cy})`);
+    path.setAttribute('stroke-linecap','butt');
+    segs.appendChild(path);
+    angle += frac;
+  });
+  txt.textContent = `${Math.round((p/total)*100)}% P · ${Math.round((c/total)*100)}% C · ${Math.round((f/total)*100)}% G`;
+}
+function compute(){
+  const w = +$('#w').value || 67, h = +$('#h').value || 172, age = +$('#age').value || 25;
+  const sex = $('#sex').value, act = +$('#act').value, goal = +$('#goal').value;
+  const BMR = bmr(sex,w,h,age); const TDEE = BMR*act; const target = Math.round(TDEE*(1+goal));
+  const p = Math.round(target*0.3/4), c = Math.round(target*0.4/4), f = Math.round(target*0.3/9);
+  const out = $('#macroOut'); out.style.display='block';
+  out.innerHTML = `
+    <div class="row">
+      <div class="col-4"><div class="muted">BMR</div><div style="font-size:28px; font-weight:900">${fmt(Math.round(BMR))}</div></div>
+      <div class="col-4"><div class="muted">TDEE</div><div style="font-size:28px; font-weight:900">${fmt(Math.round(TDEE))}</div></div>
+      <div class="col-4"><div class="muted">Objetivo</div><div style="font-size:28px; font-weight:900">${fmt(target)} kcal</div></div>
+      <div class="col-12" style="margin-top:6px">
+        <span class="tag">🥩 Prot: ${p} g</span> <span class="tag">🍞 Carb: ${c} g</span> <span class="tag">🧈 Grasa: ${f} g</span>
+      </div>
+    </div>`;
+  drawRing(p,c,f);
+}
+$('#btnCalc').addEventListener('click', compute);
+$('#btnSample').addEventListener('click', ()=>{ $('#w').value=67; $('#h').value=172; $('#age').value=25; $('#sex').value='m'; $('#act').value='1.55'; $('#goal').value='-0.15'; compute(); });
+
+/* ============ 3) Plan semanal ============ */
+const OPTIONS = {
+  breakfast: ['Avena con fruta','Omelette con espinaca','Yogur griego + granola','Tostadas integrales + aguacate','Batido de proteína y plátano','Chilaquiles horneados'],
+  lunch: ['Pollo + quinoa + ensalada','Salmón + arroz integral','Tacos de pavo con nopales','Bowl de atún + verduras','Pasta integral + pollo','Ensalada César ligera'],
+  dinner: ['Sopa de verduras + panela','Tostadas de atún','Crepas integrales saladas','Wrap de pollo','Ensalada griega con garbanzo','Quesadillas integrales con hongos']
+};
+const days = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const rand = arr => arr[Math.floor(Math.random()*arr.length)];
+function buildPlan(){
+  const grid = $('#weekGrid'); grid.innerHTML='';
+  days.forEach(d=>{
+    const card = document.createElement('div'); card.className='card'; card.style.borderRadius='16px';
+    const b = rand(OPTIONS.breakfast), l = rand(OPTIONS.lunch), dn = rand(OPTIONS.dinner);
+    card.innerHTML = `<strong>${d}</strong><div class="muted" style="margin:6px 0">Desayuno</div>${b}<div class="muted" style="margin:6px 0">Comida</div>${l}<div class="muted" style="margin:6px 0">Cena</div>${dn}`;
+    card.contentEditable = true; grid.appendChild(card);
+  });
+}
+buildPlan();
+$('#regenPlan').addEventListener('click', ()=>{ buildPlan(); toast('Plan regenerado'); });
+
+/* ============ 4) Hábitos ============ */
+const water = $('#water'); let glasses = store.get('ns_water',0), streak = store.get('ns_streak',0); const GOAL = 8;
+const streakEl = $('#streak'); streakEl.textContent = streak;
+function renderWater(){
+  water.innerHTML='';
+  for(let i=0;i<GOAL;i++){
+    const b = document.createElement('button'); b.className='btn secondary'; b.style.padding='10px 12px';
+    b.setAttribute('aria-pressed', i<glasses ? 'true':'false'); b.textContent = i<glasses ? '💧' : '—';
+    b.addEventListener('click', ()=>{
+      const prev = glasses; glasses = i < glasses ? i : i+1;
+      if(prev < GOAL && glasses === GOAL) { streak++; toast('🎉 ¡Meta de agua cumplida!'); }
+      else if (prev === GOAL && glasses < GOAL) { streak = Math.max(0, streak -1); }
+      streakEl.textContent = streak; store.set('ns_water',glasses); store.set('ns_streak',streak);
+      renderWater();
+    });
+    water.appendChild(b);
+  }
+}
+renderWater();
+function randomSteps(){
+  const pts = []; let last = Math.random()*6+2;
+  for(let x=0;x<=100;x+=10){ last = clamp(last + (Math.random()*2-1), 1, 11); pts.push(`${x},${12-last}`); }
+  $('#stepsLine').setAttribute('points', pts.join(' '));
+  $('#stepsTxt').textContent = `Hoy: ${fmt(6000 + Math.floor(Math.random()*6000))} pasos`;
+}
+randomSteps();
+
+/* ============ 5) Assistant (SIM) ============ */
+const fab = $('#fab'), panel = $('#assistant'), chat = $('#chat'), msg = $('#msg');
+function openAssistant(){ panel.style.display='block'; msg.focus(); }
+function closeAssistant(){ panel.style.display='none'; }
+fab.addEventListener('click', ()=> panel.style.display = panel.style.display==='block' ? 'none' : 'block');
+const FAQ = {
+  cena: ()=> ($('#goal').value > 0)
+    ? "Ganar masa (~600-700 kcal): 150g salmón, 1 papa al horno grande y espárragos."
+    : "Bajar grasa (~400-500 kcal): 120g pechuga a la plancha, ensalada grande y 1/2 taza de quinoa.",
+  desayuno: "Yogur griego (200 g), frutos rojos (100 g) y 20 g de avena.",
+  bajar: "Déficit ~15% del TDEE, 30/40/30 en macros y 8–10k pasos/día.",
+  ganar: "Superávit +15%, 1.6–2.2 g proteína/kg, fuerza 3–4×/sem.",
+  agua: "Meta 8 vasos. 1 vaso antes de cada comida + recordatorios.",
+  plan: ()=>{ buildPlan(); return "¡Listo! Regeneré tu plan semanal. Edita cada tarjeta."; },
+  romi: "ROMI apoya hábitos saludables. NutriSnap usa su tecnología para guiarte."
+};
+function addBubble(text, me=false){
+  const b = document.createElement('div'); b.className = 'bubble ' + (me? 'me':'ai'); b.textContent = text;
+  chat.appendChild(b); chat.scrollTop = chat.scrollHeight;
+}
+function typeAI(text){
+  const b = document.createElement('div'); b.className = 'bubble ai'; chat.appendChild(b);
+  let i=0; const t = setInterval(()=>{ b.textContent = text.slice(0, ++i); chat.scrollTop = chat.scrollHeight; if(i>=text.length) clearInterval(t); }, 12);
+}
+function reply(u){
+  const x = u.toLowerCase();
+  let ans;
+  if(x.includes('cenar') || x.includes('noche')) ans = FAQ.cena();
+  else if(x.includes('desayuno')) ans = FAQ.desayuno;
+  else if(x.includes('bajar') || x.includes('grasa')) ans = FAQ.bajar;
+  else if(x.includes('ganar') || x.includes('masa')) ans = FAQ.ganar;
+  else if(x.includes('agua') || x.includes('hidrata')) ans = FAQ.agua;
+  else if(x.includes('plan') || x.includes('menú')) ans = FAQ.plan();
+  else if(x.includes('romi')) ans = FAQ.romi;
+  else ans = "No entendí la pregunta. Intenta con 'ideas para cenar' o 'cómo ganar masa muscular'.";
+  typeAI(ans);
+}
+$('#send').addEventListener('click', ()=>{
+  const u = msg.value.trim(); if(!u) return; msg.value=''; addBubble(u, true);
+  setTimeout(()=> reply(u), 220);
+});
+msg.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#send').click(); }});
+$('#quickRow').addEventListener('click', (e)=>{ const btn = e.target.closest('.quick'); if(!btn) return; const text = btn.textContent.trim(); addBubble(text, true); setTimeout(()=> reply(text), 200); });
+
+/* ============ 6) Buscador “tipo USDA” + Carrito ============ */
+/* Por 100 g; puedes ampliar/editar el catálogo abajo */
+const CATALOGO_FDC = [
+  {id:100000, desc:'Manzana, cruda con cáscara', group:'Fruta', kcal:52, protein:0.3, fat:0.2, carb:14, sugars:10.4, fiber:2.4, sodium:1, iron:0.1, vitc:4.6, calcium:6},
+  {id:100001, desc:'Plátano, crudo', group:'Fruta', kcal:89, protein:1.1, fat:0.3, carb:23, sugars:12.2, fiber:2.6, sodium:1, iron:0.3, vitc:8.7, calcium:5},
+  {id:100002, desc:'Naranja, cruda', group:'Fruta', kcal:47, protein:0.9, fat:0.1, carb:12, sugars:9.4, fiber:2.4, sodium:0, iron:0.1, vitc:53.2, calcium:40},
+  {id:100003, desc:'Tomate rojo', group:'Verdura', kcal:18, protein:0.9, fat:0.2, carb:3.9, sugars:2.6, fiber:1.2, sodium:5, iron:0.3, vitc:14, calcium:10},
+  {id:100004, desc:'Aguacate Hass', group:'Fruta', kcal:160, protein:2, fat:15, carb:8.5, sugars:0.7, fiber:6.7, sodium:7, iron:0.6, vitc:10, calcium:12},
+  {id:110000, desc:'Arroz integral, cocido', group:'Cereal', kcal:111, protein:2.6, fat:0.9, carb:23, sugars:0.4, fiber:1.8, sodium:5, iron:0.4, vitc:0, calcium:10},
+  {id:110001, desc:'Pasta integral, cocida', group:'Cereal', kcal:124, protein:5, fat:1, carb:26, sugars:0.7, fiber:3.8, sodium:6, iron:1.3, vitc:0, calcium:10},
+  {id:110002, desc:'Tortilla de maíz', group:'Cereal', kcal:218, protein:5.7, fat:2.9, carb:45.5, sugars:1.7, fiber:6.3, sodium:30, iron:1.5, vitc:0, calcium:170},
+  {id:110003, desc:'Pan integral', group:'Cereal', kcal:247, protein:13, fat:4.2, carb:41, sugars:6, fiber:7, sodium:370, iron:3.6, vitc:0, calcium:100},
+  {id:120000, desc:'Pechuga de pollo, cocida', group:'Proteína', kcal:165, protein:31, fat:3.6, carb:0, sugars:0, fiber:0, sodium:74, iron:1, vitc:0, calcium:15},
+  {id:120001, desc:'Salmón, cocido', group:'Proteína', kcal:208, protein:20, fat:13, carb:0, sugars:0, fiber:0, sodium:59, iron:0.3, vitc:0, calcium:9},
+  {id:120002, desc:'Huevo, entero', group:'Proteína', kcal:143, protein:13, fat:10, carb:1.1, sugars:1.1, fiber:0, sodium:142, iron:1.8, vitc:0, calcium:56},
+  {id:120003, desc:'Atún en agua, escurrido', group:'Proteína', kcal:116, protein:26, fat:0.8, carb:0, sugars:0, fiber:0, sodium:50, iron:1, vitc:0, calcium:20},
+  {id:120004, desc:'Queso panela', group:'Lácteo', kcal:265, protein:18, fat:20, carb:3, sugars:1.5, fiber:0, sodium:620, iron:0.2, vitc:0, calcium:650},
+  {id:130000, desc:'Frijol negro, cocido', group:'Leguminosa', kcal:132, protein:8.9, fat:0.5, carb:23.7, sugars:0.3, fiber:8.7, sodium:1, iron:2.1, vitc:0, calcium:27},
+  {id:130001, desc:'Garbanzos, cocidos', group:'Leguminosa', kcal:164, protein:8.9, fat:2.6, carb:27.4, sugars:4.8, fiber:7.6, sodium:7, iron:2.9, vitc:0, calcium:49},
+  {id:140000, desc:'Aceite de oliva', group:'Grasa', kcal:884, protein:0, fat:100, carb:0, sugars:0, fiber:0, sodium:2, iron:0.6, vitc:0, calcium:1},
+  {id:140001, desc:'Azúcar blanca', group:'Azúcares', kcal:387, protein:0, fat:0, carb:100, sugars:100, fiber:0, sodium:1, iron:0, vitc:0, calcium:1}
+];
+
+const fdcQuery = $('#fdcQuery'), fdcResults = $('#fdcResults'), fdcGroup = $('#fdcGroup');
+const plateList = $('#plateList'), plateTotals = $('#plateTotals'), plateBars = $('#plateBars');
+const barP = $('#barProt'), barC = $('#barCarb'), barF = $('#barFat');
+const btnSearch = $('#fdcSearch'), btnClear = $('#clearPlate'), btnUndo = $('#undoPlate'), btnShare = $('#sharePlate'), btnFavs = $('#toggleFavs'), btnReset = $('#resetSearch');
+let showFavs = false;
+
+let plate = store.get('ns_plate', []); // {id, desc, grams, nutrients:{}}
+let stack = []; // para deshacer
+let favs = store.get('ns_favs', []); // ids
+
+function pushStack(){ stack.push(JSON.stringify(plate)); if(stack.length>20) stack.shift(); }
+function undo(){ if(!stack.length){ toast('Nada que deshacer'); return; } plate = JSON.parse(stack.pop()); renderPlate(true); }
+
+function isFav(id){ return favs.includes(id); }
+function toggleFav(id){ favs = isFav(id) ? favs.filter(x=>x!==id) : [...favs,id]; store.set('ns_favs',favs); }
+btnFavs.addEventListener('click', ()=>{ showFavs = !showFavs; searchLocal(); btnFavs.textContent = showFavs ? '☆ Todos' : '★ Favoritos'; });
+
+btnReset.addEventListener('click', ()=>{ fdcQuery.value=''; fdcGroup.value=''; showFavs=false; btnFavs.textContent='★ Favoritos'; fdcResults.style.display='none'; });
+
+function fuzzyIncludes(text, query){
+  const tokens = query.split(/\s+/).filter(Boolean);
+  return tokens.every(tok => text.includes(tok));
+}
+
+function searchLocal(){
+  const q = fdcQuery.value.trim().toLowerCase(); fdcResults.style.display='block';
+  let arr = CATALOGO_FDC.slice();
+  if(q){ arr = arr.filter(x=> fuzzyIncludes((x.desc+' '+x.group).toLowerCase(), q)); }
+  if(fdcGroup.value) arr = arr.filter(x=> x.group === fdcGroup.value);
+  if(showFavs) arr = arr.filter(x=> isFav(x.id));
+  if((q||fdcGroup.value||showFavs) && arr.length===0){ fdcResults.innerHTML = '<span class="muted">Sin resultados.</span>'; return; }
+
+  const list = document.createElement('div'); list.style.display='grid'; list.style.gap='10px';
+  (arr.length?arr:CATALOGO_FDC).slice(0,16).forEach(it=>{
+    const r = document.createElement('div'); r.className='card'; r.style.borderRadius='16px';
+    r.innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+        <div>
+          <strong>${it.desc}</strong>
+          <div class="muted" style="font-size:12px">${it.group} · id: ${it.id}</div>
+          <div class="muted" style="font-size:12px; margin-top:6px">100 g → ${Math.round(it.kcal)} kcal · P ${it.protein} g · C ${it.carb} g · G ${it.fat} g</div>
+        </div>
+        <button class="btn ghost" title="Favorito">${isFav(it.id)?'★':'☆'}</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap">
+        <input class="input" type="number" min="1" value="100" style="max-width:110px" aria-label="Gramos">
+        <button class="btn primary" type="button">Agregar</button>
+      </div>`;
+    const gramsInput = r.querySelector('input');
+    r.querySelector('button.btn.primary').addEventListener('click', ()=>{
+      const grams = Math.max(1, +gramsInput.value||100);
+      const n = {kcal:it.kcal,protein:it.protein,fat:it.fat,carb:it.carb,sugars:it.sugars||0,fiber:it.fiber||0,sodium:it.sodium||0,iron:it.iron||0,vitc:it.vitc||0,calcium:it.calcium||0};
+      pushStack();
+      plate.push({id:it.id, desc:it.desc, grams, nutrients:n}); renderPlate(); toast('Agregado al plato');
+    });
+    r.querySelector('button.btn.ghost').addEventListener('click', (ev)=>{
+      toggleFav(it.id); ev.target.textContent = isFav(it.id)?'★':'☆';
+    });
+    list.appendChild(r);
+  });
+  fdcResults.innerHTML=''; fdcResults.appendChild(list);
+}
+btnSearch.addEventListener('click', searchLocal);
+fdcQuery.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); searchLocal(); }});
+fdcGroup.addEventListener('change', searchLocal);
+btnUndo.addEventListener('click', undo);
+
+/* accesos rápidos */
+document.addEventListener('keydown', (e)=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); fdcQuery.focus(); }
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
+});
+
+btnClear.addEventListener('click', ()=>{ if(!plate.length) return; pushStack(); plate = []; renderPlate(); toast('Plato limpiado'); });
+
+btnShare.addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(plate,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `NutriSnap-plato-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+function renderPlate(silent=false){
+  store.set('ns_plate', plate);
+  if(plate.length===0){
+    plateList.textContent = 'Sin alimentos aún.';
+    plateTotals.style.display='none'; plateBars.style.display='none';
+    return;
+  }
+  plateList.innerHTML='';
+  plate.forEach((item, idx)=>{
+    const row = document.createElement('div'); row.style.display='grid'; row.style.gridTemplateColumns='1fr auto'; row.style.gap='8px'; row.style.alignItems='center';
+    const left = document.createElement('div');
+    const gramsInput = document.createElement('input'); gramsInput.className='input'; gramsInput.type='number'; gramsInput.min='1'; gramsInput.value=item.grams; gramsInput.style.maxWidth='110px';
+    gramsInput.addEventListener('change', ()=>{ item.grams = Math.max(1, +gramsInput.value||1); renderPlate(true); });
+    left.innerHTML = `<strong>${item.desc}</strong><div class="muted" style="font-size:12px">id: ${item.id}</div>`;
+    const right = document.createElement('div');
+    right.innerHTML = `<div style="display:flex; gap:8px; align-items:center;">
+       <span class="tag">${Math.round(item.grams)} g</span>
+       <button class="btn secondary" type="button">Eliminar</button>
+    </div>`;
+    right.querySelector('button').addEventListener('click', ()=>{ pushStack(); plate.splice(idx,1); renderPlate(); });
+    row.appendChild(left);
+    const controls = document.createElement('div'); controls.style.display='flex'; controls.style.gap='8px'; controls.style.alignItems='center';
+    controls.appendChild(gramsInput); controls.appendChild(right.firstElementChild);
+    row.appendChild(controls); plateList.appendChild(row);
+  });
+  const totals = plate.reduce((a,it)=>{
+    const factor = it.grams/100;
+    for(const k in it.nutrients){ a[k] = (a[k]||0) + (it.nutrients[k]*factor); }
+    return a;
+  }, {});
+  // Totales
+  plateTotals.style.display='block';
+  plateTotals.innerHTML = `
+    <div class="row">
+      <div class="col-6"><div class="muted">Energía</div><div style="font-size:24px; font-weight:900">${fmt(Math.round(totals.kcal||0))} kcal</div></div>
+      <div class="col-6"><div class="muted">Macros (g)</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+          <span class="tag">🥩 Prot: ${Math.round(totals.protein||0)}</span>
+          <span class="tag">🍞 Carb: ${Math.round(totals.carb||0)}</span>
+          <span class="tag">🧈 Grasa: ${Math.round(totals.fat||0)}</span>
+        </div>
+      </div>
+      <div class="col-12" style="margin-top:6px"><div class="muted">Micros clave</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+          <span class="tag">Sodio: ${(totals.sodium||0).toFixed(0)} mg</span>
+          <span class="tag">Azúcares: ${(totals.sugars||0).toFixed(1)} g</span>
+          <span class="tag">Fibra: ${(totals.fiber||0).toFixed(1)} g</span>
+          <span class="tag">Hierro: ${(totals.iron||0).toFixed(1)} mg</span>
+          <span class="tag">Vit C: ${(totals.vitc||0).toFixed(1)} mg</span>
+          <span class="tag">Calcio: ${(totals.calcium||0).toFixed(0)} mg</span>
+        </div>
+      </div>
+    </div>`;
+  // Barras de macros
+  plateBars.style.display='block';
+  const P = Math.max(0, totals.protein||0), C = Math.max(0, totals.carb||0), F = Math.max(0, totals.fat||0);
+  const sum = P + C + F || 1;
+  barP.style.width = (P/sum*100)+'%';
+  barC.style.width = (C/sum*100)+'%';
+  barF.style.width = (F/sum*100)+'%';
+  if(!silent) { /* no toast al re-render por input */ }
+}
+renderPlate(true);
+
+/* ===== init year + keyboard focus ===== */
+document.getElementById('preview').loading='lazy';
+</script>
+</body>
+</html>

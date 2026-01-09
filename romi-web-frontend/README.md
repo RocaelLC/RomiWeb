@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Sitios Legacy Estáticos
+
+Este proyecto incluye varios sitios estáticos legacy en `public/`. Para más información sobre cómo funcionan y cómo agregar nuevos, consulta la [documentación de sitios legacy](./docs/legacy-static.md).
+
+### Verificación de Sitios Legacy
+
+Ejecuta el script de verificación para validar que todos los recursos estén correctamente referenciados:
+
+```bash
+npm run verify-legacy
+```
+
 ## Getting Started
 
 First, run the development server:
