@@ -208,37 +208,91 @@ npm run verify-legacy
 
 ## Pruebas Locales
 
-### 1. Iniciar el Servidor de Desarrollo
+### Método 1: Script Automático (Recomendado)
+
+El script `test-legacy-local.mjs` prueba automáticamente todos los redirects y rutas:
 
 ```bash
+# 1. Instalar dependencias (si no están instaladas)
 npm install
+
+# 2. Iniciar el servidor de desarrollo (en una terminal)
 npm run dev
+
+# 3. En otra terminal, ejecutar las pruebas
+npm run test-legacy
 ```
 
-### 2. Verificar Rutas
+El script verificará:
+- ✅ Redirects sin slash → con slash (301)
+- ✅ Rutas con slash responden 200
+- ✅ Recursos se cargan correctamente
 
-Usa `curl` o tu navegador para verificar que cada ruta responde correctamente:
+### Método 2: Verificación Manual con curl
+
+Si prefieres probar manualmente:
 
 ```bash
-# Verificar redirects (debe retornar 301)
+# 1. Iniciar el servidor de desarrollo
+npm run dev
+
+# 2. En otra terminal, verificar redirects (debe retornar 301)
 curl -I http://localhost:3000/Edu
 curl -I http://localhost:3000/efysia
+curl -I http://localhost:3000/NutriSnap
+curl -I http://localhost:3000/OncoPro
+curl -I http://localhost:3000/RejuvIA
+curl -I http://localhost:3000/ROMIMED
 
-# Verificar que las rutas con slash funcionan (debe retornar 200)
+# 3. Verificar que las rutas con slash funcionan (debe retornar 200)
 curl -I http://localhost:3000/Edu/
 curl -I http://localhost:3000/efysia/
+curl -I http://localhost:3000/NutriSnap/
+curl -I http://localhost:3000/OncoPro/
+curl -I http://localhost:3000/RejuvIA/
+curl -I http://localhost:3000/ROMIMED/
 
-# Verificar que los recursos se cargan correctamente
+# 4. Verificar que los recursos se cargan correctamente
 curl -I http://localhost:3000/efysia/Efysia.jpg
 ```
 
-### 3. Verificar en el Navegador
+### Método 3: Verificación en el Navegador
 
-1. Abre `http://localhost:3000/Edu/`
-2. Abre las DevTools (F12)
-3. Ve a la pestaña Network
-4. Verifica que no haya errores 404 para recursos CSS, JS o imágenes
-5. Repite para todos los sitios legacy
+1. Inicia el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+
+2. Abre tu navegador y prueba cada sitio:
+   - `http://localhost:3000/Edu` → debe redirigir a `/Edu/`
+   - `http://localhost:3000/efysia` → debe redirigir a `/efysia/`
+   - etc.
+
+3. Abre las DevTools (F12) en cada sitio:
+   - Ve a la pestaña **Network**
+   - Verifica que no haya errores 404 para recursos CSS, JS o imágenes
+   - Verifica que el redirect funcione (puedes verlo en la pestaña Network)
+
+4. Prueba las rutas con slash directamente:
+   - `http://localhost:3000/Edu/`
+   - `http://localhost:3000/efysia/`
+   - etc.
+
+### Verificación de Redirects en el Navegador
+
+Para verificar que los redirects funcionan correctamente:
+
+1. Abre las DevTools (F12)
+2. Ve a la pestaña **Network**
+3. Marca la opción "Preserve log" (para ver redirects)
+4. Navega a una ruta sin slash, por ejemplo: `http://localhost:3000/Edu`
+5. Deberías ver:
+   - Primera petición a `/Edu` con status **301** o **308** (redirect)
+   - Segunda petición a `/Edu/` con status **200** (OK)
+
+### Nota Importante sobre Fetch/API
+
+El script de prueba usa `fetch`, que en Node.js puede seguir redirects automáticamente. Si ves status 200 en lugar de 301, es normal - significa que el redirect funcionó y fetch lo siguió automáticamente. Para ver el redirect real, usa `curl -I` o el navegador con DevTools.
 
 ## Assets Globales vs. Locales
 

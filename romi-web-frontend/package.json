@@ -7,7 +7,8 @@
     "build:css": "tailwindcss -i ./src/app/globals.css -o ./public/tw.css --minify",
     "build": "next build && npm run build:css",
     "start": "next start -p 3000",
-    "verify-legacy": "node scripts/verify-legacy-static.mjs"
+    "verify-legacy": "node scripts/verify-legacy-static.mjs",
+    "test-legacy": "node scripts/test-legacy-local.mjs"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.23.0",
