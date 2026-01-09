@@ -203,3 +203,4 @@ El propietario del proyecto solo necesita:
 
 Para más detalles, consulta la [documentación completa](./docs/legacy-static.md).
 
+
